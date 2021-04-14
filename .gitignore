@@ -7,6 +7,7 @@
 
 # testing
 /coverage
+app/config/db.config.js
 
 # production
 /build
