@@ -9,6 +9,5 @@ module.exports = function (app) {
     next();
   });
 
-  app.get('/api/user/:id', controller.getUserById);
+  app.get('/api/user/:id',[authJwt.verifyToken], controller.getUserById);
 };
-
