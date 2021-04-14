@@ -1,3 +1,4 @@
+const { user } = require("../models");
 const db = require("../models");
 const User = db.user;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
@@ -25,7 +26,7 @@ exports.getUserById = async (req, res) => {
 exports.editUser = async (req, res) => {
   try {
     const {firstName, lastName, bio, state, city, gender} = req.body;
-    const user = await User.update({
+    await User.update({
         firstName,
         lastName,
         bio,
@@ -35,18 +36,11 @@ exports.editUser = async (req, res) => {
       },
       {
         where: {
-          id: req.params.id,
+          id: req.userId,
         },
       }
-    );
-    if (!user) {
-      return sendBadRequest(res, 404, "User Not Found");
-    }
-    console.log(user);
-    delete user["dataValues"]["password"];
-    return sendJSONResponse(res, 200, "User updated", {
-      user
-    })
+    );  
+    return sendJSONResponse(res, 200, "profile updated successfully")
   }
   catch (err) {
     return sendBadRequest(res, 500, `${err.message}`)
