@@ -11,4 +11,5 @@ module.exports = function (app) {
   });
 
   app.get('/api/user/:id',[authJwt.verifyToken], controller.getUserById);
+  app.patch('/api/user/edit/:id',[authJwt.verifyToken], controller.editUser);
 };
