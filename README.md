@@ -8,4 +8,8 @@
 
 `npm install`
 
+`cp app/config/example.config.js app/config/db.config.js` 
+
+configure `db.config.js`
+
 `npm start`
