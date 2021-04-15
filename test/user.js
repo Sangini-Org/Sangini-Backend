@@ -12,6 +12,7 @@ chai.use(chaiHttp);
 describe("USERS API", () => {
 
     before(async () => {
+        await db.sequelize.sync();
         await chai.request(server)
             .post('/api/auth/signup')
             .send({
