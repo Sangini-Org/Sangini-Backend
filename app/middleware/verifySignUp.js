@@ -1,5 +1,6 @@
 const db = require("../models");
-const User = db.user;
+console.log(db.users)
+const User = db.users;
 const {sendJSONResponse,sendBadRequest} = require("../utils/handle")
 checkDuplicateUsernameOrEmail = async (req, res, next) => {
   // Username
