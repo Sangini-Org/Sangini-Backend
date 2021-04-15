@@ -34,6 +34,12 @@ module.exports = (sequelize, Sequelize) => {
     bio: {
       type: Sequelize.TEXT,
     },
+    image: {
+      type: Sequelize.STRING,
+    },
+    isVerfified: {
+      type: Sequelize.BOOLEAN,
+    }
   });
 
 
