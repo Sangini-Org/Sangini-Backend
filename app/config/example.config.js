@@ -2,6 +2,7 @@ require('dotenv').config();
 
 
 module.exports = {
+<<<<<<< HEAD
 
   // If using onine database
   // development: {
@@ -32,3 +33,17 @@ module.exports = {
     dialect: 'postgres'
   }
 };
+=======
+    HOST: "localhost",
+    USER: "postgres",
+    PASSWORD: process.env.DB_PASS,
+    DB: "sangini",
+    dialect: "postgres",
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+  };
+>>>>>>> Added Features:

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 'use strict';
+=======
+const config = require("../config/example.config.js");
+>>>>>>> Added Features:
 
 const fs = require('fs');
 const path = require('path');

@@ -34,6 +34,7 @@ module.exports = (sequelize, Sequelize) => {
     bio: {
       type: Sequelize.TEXT,
     },
+<<<<<<< HEAD:app/models/user.js
     dob: {
       type: Sequelize.DATE,
     },
@@ -42,9 +43,16 @@ module.exports = (sequelize, Sequelize) => {
     },
     isVerfified: {
       type: Sequelize.BOOLEAN,
+=======
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    uniqueString: {
+      type: DataTypes.STRING
+>>>>>>> Added Features::app/models/user.model.js
     }
   });
-
 
   return User;
 };
