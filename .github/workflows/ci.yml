@@ -3,7 +3,7 @@
 name: CI
 on: [push,pull_request]
 jobs:
-  postgres:
+  build_and_test:
     runs-on: ubuntu-latest
     container: node:latest
     services:
@@ -28,6 +28,9 @@ jobs:
           apt-get install --yes postgresql-client
       - name: Query database
         run: psql -h postgres -d sangini_test -U postgres -c 'SELECT 1;'
+      env:
+          PGPASSWORD: 1234
+          NODE_ENV: test
       - uses: actions/checkout@v2
       - name: Using Node.js 12.x
         uses: actions/setup-node@v1
@@ -43,6 +46,3 @@ jobs:
 
       - run: npm install
       - run: npm test
-        env:
-          PGPASSWORD: 1234
-          NODE_ENV: test
