@@ -2,7 +2,7 @@ const { user } = require("../models");
 const db = require("../models");
 const User = db.users;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
-const { getPagingData, getPagination } = require("../controller/paginate.js");
+const { getPagingData, getPagination } = require("../controllers/paginate.js");
 
 const Op = db.Sequelize.Op;
 
