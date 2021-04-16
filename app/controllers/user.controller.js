@@ -2,7 +2,7 @@ const { user } = require("../models");
 const db = require("../models");
 const User = db.users;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
-const { getPagingData, getPagination } = require("../controllers/paginate.js");
+const { getPagingData, getPagination } = require("../utils/paginate.js");
 
 const Op = db.Sequelize.Op;
 
@@ -28,21 +28,21 @@ exports.getUserById = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   try {
-    const {firstName, lastName, bio, state, city, gender} = req.body;
+    const { firstName, lastName, bio, state, city, gender } = req.body;
     await User.update({
-        firstName,
-        lastName,
-        bio,
-        state,
-        city,
-        gender
-      },
+      firstName,
+      lastName,
+      bio,
+      state,
+      city,
+      gender
+    },
       {
         where: {
           id: req.userId,
         },
       }
-    );  
+    );
     return sendJSONResponse(res, 200, "profile updated successfully")
   }
   catch (err) {
@@ -60,14 +60,14 @@ exports.getAllUser = async (req, res) => {
       Object.assign(condition, filter[1] ? { [filter[0]]: { [Op.like]: `%${filter[1]}%` } } : null);
     })
     const { limit, offset } = getPagination(page, offlimit);
-    User.findAndCountAll({ where: condition, limit, offset })
+    User.findAndCountAll({
+      where: condition, limit, offset,
+      attributes: { exclude: ['password'] }
+    })
       .then(data => {
         if (!data) { return sendBadRequest(res, 404, "Users Not Found"); }
         else {
           const response = getPagingData(data, page, limit);
-          response.users.forEach(element => {
-            delete element["dataValues"]["password"];
-          });
           res.send(response);
         }
       })
