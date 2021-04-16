@@ -13,3 +13,6 @@
 configure `db.config.js`
 
 `npm start`
+
+### For creating the test database 
+`CREATE DATABASE sangini_test WITH OWNER postgres;`

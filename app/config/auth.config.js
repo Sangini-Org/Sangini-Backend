@@ -1,3 +1,3 @@
 module.exports = {
-  secret: "sanigni-secret-key",
-};
+    secret: "sanigni-secret-key",
+  };
