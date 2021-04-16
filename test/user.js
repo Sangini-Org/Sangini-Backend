@@ -77,7 +77,7 @@ describe("USERS API", () => {
             .post('/api/auth/signin')
             .send({
                 username: 'user3',
-                password: 'pw-wron',
+                password: 'pw-wro',
             });
         expect(status).to.eq(401);
         expect(body.metadata.message).to.equal('Invalid Password!')
