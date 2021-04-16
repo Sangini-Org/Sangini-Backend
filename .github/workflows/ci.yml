@@ -4,6 +4,36 @@ name: CI
 on: [push,pull_request]
 
 jobs:
+name: PostgreSQL
+on: push
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    container: node:latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: sangini_test
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          apt-get update
+          apt-get install --yes postgresql-client
+      - name: Query database
+        run: psql -h postgres -d sangini_test -U postgres -c 'SELECT 1;'
+        env:
+          PGPASSWORD: 1234
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -23,14 +53,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Setup PostgreSQL
-        uses: actions/checkout@v2
-        with:
-          postgresql version: 11
-          postgresql db: sangini_test
-          postgresql user: postgres
-          postgresql port: 5432
-          postgresql password: 1234
 
       - run: npm install
       - run: npm test
