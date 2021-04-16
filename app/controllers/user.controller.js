@@ -1,7 +1,10 @@
 const { user } = require("../models");
 const db = require("../models");
-const User = db.user;
+const User = db.users;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
+const { getPagingData, getPagination } = require("../middleware/paginate.js");
+
+const Op = db.Sequelize.Op;
 
 exports.getUserById = async (req, res) => {
   try {
@@ -44,5 +47,32 @@ exports.editUser = async (req, res) => {
   }
   catch (err) {
     return sendBadRequest(res, 500, `${err.message}`)
+  }
+};
+
+exports.getAllUser = async (req, res) => {
+  try {
+    const { page, offlimit, city, gender, username, state, firstName, lastName } = req.query;
+    var condition = {};
+    const filters = { city, gender, username, state, firstName, lastName };
+
+    Object.entries(filters).forEach(filter => {
+      Object.assign(condition, filter[1] ? { [filter[0]]: { [Op.like]: `%${filter[1]}%` } } : null);
+    })
+    const { limit, offset } = getPagination(page, offlimit);
+    User.findAndCountAll({ where: condition, limit, offset })
+      .then(data => {
+        if (!data) { return sendBadRequest(res, 404, "Users Not Found"); }
+        else {
+          const response = getPagingData(data, page, limit);
+          response.users.forEach(element => {
+            delete element["dataValues"]["password"];
+          });
+          res.send(response);
+        }
+      })
+  }
+  catch (err) {
+    return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)
   }
 };
