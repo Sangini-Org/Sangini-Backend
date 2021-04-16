@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - "stable"
+cache:
+  directories:
+    - "node_modules"
+install:
+  - npm install
+services:
+  - postgresql
+
+env:
+  global:
+  - NODE_ENV=test
+
+before_script:
+  - psql -c 'create database sangini_test;' -U postgres
+  - npm install 
+script:
+  - npm test
