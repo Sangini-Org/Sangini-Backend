@@ -52,7 +52,7 @@ exports.editUser = async (req, res) => {
 
 exports.getAllUser = async (req, res) => {
   try {
-    const { page, offlimit, city, state, gender, username, state, firstName, lastName } = req.query;
+    const { page, offlimit, city, gender, username, state, firstName, lastName } = req.query;
     var condition = {};
     const filters = { city, gender, username, state, firstName, lastName };
 
