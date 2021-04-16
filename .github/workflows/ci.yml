@@ -29,6 +29,7 @@ jobs:
           postgresql version: 11
           postgresql db: sangini_test
           postgresql user: postgres
+          postgresql port: 5432
           postgresql password: 1234
 
       - run: npm install
