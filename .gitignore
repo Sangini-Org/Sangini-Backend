@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+#config
+app/config/db.config.js
 
 # production
 /build
