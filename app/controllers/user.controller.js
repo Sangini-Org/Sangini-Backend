@@ -12,11 +12,11 @@ exports.getUserById = async (req, res) => {
       where: {
         id: req.params.id,
       },
+      attributes: { exclude: ['password'] },    
     })
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
     }
-    delete user["dataValues"]["password"];
     return sendJSONResponse(res, 200, "User exists", {
       user
     })
@@ -52,25 +52,26 @@ exports.editUser = async (req, res) => {
 
 exports.getAllUser = async (req, res) => {
   try {
-    const { page, offlimit, city, gender, username, state, firstName, lastName } = req.query;
+    const { page, offlimit, city, gender, username, state, firstName } = req.query;
     var condition = {};
-    const filters = { city, gender, username, state, firstName, lastName };
+    const filters = { city, gender, username, state, firstName };
 
     Object.entries(filters).forEach(filter => {
       Object.assign(condition, filter[1] ? { [filter[0]]: { [Op.like]: `%${filter[1]}%` } } : null);
     })
+    
     const { limit, offset } = getPagination(page, offlimit);
-    User.findAndCountAll({
+    const users = await User.findAndCountAll({
       where: condition, limit, offset,
       attributes: { exclude: ['password'] }
     })
-      .then(data => {
-        if (!data) { return sendBadRequest(res, 404, "Users Not Found"); }
-        else {
-          const response = getPagingData(data, page, limit);
-          res.send(response);
-        }
-      })
+
+    if(users) {
+      const response = getPagingData(users, page, limit);
+      res.send(response);
+    } else {
+      return sendBadRequest(res, 404, "Users Not Found");
+    }
   }
   catch (err) {
     return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)

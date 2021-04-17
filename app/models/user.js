@@ -34,6 +34,9 @@ module.exports = (sequelize, Sequelize) => {
     bio: {
       type: Sequelize.TEXT,
     },
+    dob: {
+      type: Sequelize.DATE,
+    },
     image: {
       type: Sequelize.STRING,
     },
