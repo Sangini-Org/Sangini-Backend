@@ -10,7 +10,7 @@ exports.authorizeSpotify = (req, res) => {
     const state = generateRandomString(16);
     console.log(process.env.CLIENT_ID, 'line 11')
     res.cookie(stateKey, state);
-    const scope = 'user-read-private user-read-email';
+    const scope = 'user-read-private user-read-email playlist-modify-public';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -52,22 +52,45 @@ exports.spotifyToken = (req, res) => {
                 const access_token = body.access_token,
                     refresh_token = body.refresh_token;
                 const options = {
-                    url: 'https://api.spotify.com/v1/me/playlists',
+                    url: 'https://api.spotify.com/v1/me/playlists/',
                     headers: { 'Authorization': 'Bearer ' + access_token },
                     json: true
                 };
 
+
                 // use the access token to access the Spotify Web API
                 request.get(options, function (error, response, body) {
-                    console.log(body);
+                    const userId = body.items[0].owner.id;
+                    console.log(access_token);
+                    const form = {
+                        name: 'sangini',
+                        description: 'Sangini Matching Playlist - Do not delete if you are using sangini web app',
+                        public: true
+                    }
+                    const createplaylistOptions = {
+                        url: `https://api.spotify.com/v1/users/${userId}/playlists`,
+                        headers: { 'Authorization': 'Bearer ' + access_token },
+                        form: JSON.stringify(form)
+                        // json: true
+                    }
+                    const sanginiPlaylistId;
+                    const flag = body.items.find(item => item.name === "sangini");
+                    if (!flag) {
+                        request.post(createplaylistOptions, function (error, response, body) {
+                            sanginiPlaylistId = body.id;
+                        })
+
+                    }
+
+                    return sendJSONResponse(res, '200', 'Access Token', {
+                        access_token: access_token,
+                        refresh_token: refresh_token,
+                        body: body
+                    })
                 });
 
-                return sendJSONResponse(res, '200', 'Access Token', {
-                        access_token: access_token,
-                        refresh_token: refresh_token
-                    })
 
-            } 
+            }
         });
     }
 }

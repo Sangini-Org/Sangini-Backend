@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-console.log(process.env.NODE_ENV)
+// console.log(process.env.NODE_ENV)
 
 const db = require("./app/models");
 if (process.env.NODE_ENV !== "test" ){
