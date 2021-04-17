@@ -6,6 +6,38 @@ const { getPagingData, getPagination } = require("../utils/paginate.js");
 
 const Op = db.Sequelize.Op;
 
+exports.registerUser = async (req, res) => {
+  try {
+    const user = await User.build(req.body.user);
+    user.uniqueString = generateRandomString();
+
+    await user.save();
+
+    sendVerficationEmail(user.email);
+
+    return sendJSONResponse(res, 200, "User registered", user);
+  } catch(err) {
+    return sendBadRequest(res, 307, `${err.message}`);
+  }
+};
+
+exports.verifyUser = async (req, res) => {
+  try {
+    const { uniqueString } = req.params;
+
+    const user = await User.findOne({ uniqueString: uniqueString});
+    if(!user)
+      return sendBadRequest(res, 404, "User Not Found");
+
+    user.isVerified = true;
+    await user.save();
+
+    sendJSONResponse(res, 308, "User verified", user)
+  } catch(err) {
+
+  }
+}
+
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findOne({

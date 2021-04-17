@@ -1,24 +1,32 @@
 const db = require("../models");
 const config = require("../config/auth.config");
-const User = db.users;
-const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
+
+// To send the email to the user
+const sendUserEmail = require("../middleware/sendUserEmail")
+const User = db.user;
+const { sendJSONResponse, sendBadRequest, generateRandomString } = require("../utils/handle")
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 exports.signup = async (req, res) => {
   // Save User to Database
   try {
+    let uniqueString = generateRandomString('hex');
+
     let user = await User.create({
       username: req.body.username,
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
-    })
+      uniqueString: uniqueString
+    });
+
     if (user) {
-      return sendJSONResponse(res, 200, 'User Registered Successfully')
+      sendUserEmail(req.body.email, uniqueString);
+      return sendJSONResponse(res, 200, 'User Registered Successfully');
     }
   }
   catch (err) {
-    return sendBadRequest(res, 500, 'Could not sign up user');
+    return sendBadRequest(res, 500, err.message);
   }
 };
 
@@ -55,3 +63,43 @@ exports.signin = async (req, res) => {
     return sendBadRequest(res, 500, `${err.message}`)
   }
 };
+
+exports.verifyUserEmail = async (req, res) => {
+  try {
+    const user = await User.findOne({ uniqueString: req.params.uniqueString });
+    if(!user)
+      return sendBadRequest(res, 404, "User not found!");
+    if(user.isVerified)
+      return sendBadRequest(res, 401, "Invalid operation");
+
+    let timeElapsed = Date.now() - Date.parse(user.updatedAt);
+    if(timeElapsed < 8) {
+      user.isVerified = true;
+      await user.save();
+
+      return sendJSONResponse(res, 200, "User verified");
+    } else {
+        // Redirects the url
+        return res.redirect(`/api/auth/resendVerificationEmail/${user.uniqueString}`);
+    }
+  } catch(err) {
+    return sendBadRequest(res, 401, err.message);
+  }
+}
+
+// Resends the verification email if time limit of the verification link has passed
+exports.sendVerificationEmail = async (req, res) => {
+  try {
+    const user = await User.findOne({ uniqueString: req.params.uniqueString });
+    let uniqueString = generateRandomString('hex');
+
+    user.uniqueString = uniqueString;
+    await user.save();
+
+    sendUserEmail(user.email, uniqueString);
+
+    return sendJSONResponse(res, 200, "Email Resent"  );
+  } catch(err) {
+    return sendBadRequest(res, 401, "Invalid access");
+  }
+}
