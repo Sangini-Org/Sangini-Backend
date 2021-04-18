@@ -2,12 +2,12 @@ const { generateRandomString } = require("../utils/generateRandomString");
 require("dotenv").config();
 const request = require("request");
 const querystring = require("querystring");
-const { sendJSONResponse } = require("../utils/handle");
+const { sendJSONResponse, sendBadRequest } = require("../utils/handle");
 const stateKey = "spotify_auth_state";
 const db = require("../models");
-const user = require("../models/user");
 const { access } = require("fs");
 const User = db.users;
+const userPlaylist = db.userPlaylist;
 
 exports.authorizeSpotify = (req, res) => {
   console.log("working");
@@ -61,6 +61,7 @@ exports.spotifyToken = (req, res) => {
 
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
+        console.log(body)
         const access_token = body.access_token,
           refresh_token = body.refresh_token;
         const options = {
@@ -114,7 +115,7 @@ exports.spotifyToken = (req, res) => {
             return sendJSONResponse(
               res,
               "200",
-              "spotify playlist created/added to your profile"
+              "spotify playlist created/added to your profile",body
             );
           } catch (err) {
             return sendBadRequest(res, 500, `${err.message}`);
@@ -129,45 +130,49 @@ exports.spotifyToken = (req, res) => {
 //for sync spotify playlist
 exports.spotifyPlaylistSync = async (req, res) => {
   try {
-    let access_token = '';
     const user = await User.findOne({
       where: {
-        id: req.userId,
+        id: 'd56f9d2e-a92f-4ba7-9171-e909251fc5cd',
       },
       attributes: { exclude: ["password"] },
     });
     const refresh_token = user.dataValues.spotifyRefreshToken;
-    console.log('line',refresh_token);
     const authOptions = {
-        url: "https://accounts.spotify.com/api/token",
-        headers: {
-          'Authorization':
-            'Basic ' +
-            Buffer.from(
-              process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET
-            ).toString("base64"),
-        },
-        form: {
+      url: 'https://accounts.spotify.com/api/token',
+      headers: { 'Authorization': 'Basic ' + (Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64')) },
+      form: {
           grant_type: 'refresh_token',
-          refresh_token: refresh_token,
-        },
-        json: true,
-      };
-      request.post(authOptions, function (error, response, body) {
-        console.log('post')
-        if (!error && response.statusCode === 200) {
-            access_token = body.access_token;
-        }
-    });
-    console.log(access_token);
-    const options = {
-      url: `https://api.spotify.com/v1/playlists/${user.dataValues.spotifyPlaylistId}/tracks`,
-      headers: { Authorization: "Bearer " + access_token },
-      json: true,
-    };
+          refresh_token: refresh_token
+      },
+      json: true
+  };
 
-    request.get(options, function (error, response, body) {
-      console.log(body);
-    });
-  } catch (err) {}
+   request.post(authOptions, function (error, response, body) {
+      if (!error && response.statusCode === 200) {
+           access_token = body.access_token;
+           const options = {
+            url: `https://api.spotify.com/v1/playlists/${user.dataValues.spotifyPlaylistId}/tracks`,
+            headers: { Authorization: "Bearer " + access_token },
+            json: true,
+          };
+      
+          request.get(options, function (error, response, body) {
+            console.log(body.items)
+              for( let item of body.items){
+                  userPlaylist.create({
+                    userId: req.userId,
+                    trackId: item.track?.id,
+                    trackImg: item.track?.name,
+                    trackPreview: item.track?.preview_url,
+                    trackImg: item.track.album[0]?.images[0]?.url,
+                    playlistId: user.dataValues.spotifyPlaylistId,
+                  })   
+              }
+              return sendJSONResponse(res,200,"playlist synced")
+          });
+      }
+  });
+  } catch (err) {
+    return sendBadRequest(res,500, `${err.message}`)
+  }
 };
