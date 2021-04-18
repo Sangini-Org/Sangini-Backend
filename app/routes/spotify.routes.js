@@ -1,5 +1,6 @@
 const controller = require("../controllers/spotify.controller");
-console.log(controller)
+const { authJwt } = require("../middleware");
+
 module.exports = function (app) {
     app.use(function (req, res, next) {
         res.header(
@@ -9,8 +10,8 @@ module.exports = function (app) {
         next();
       });
 
-    app.get('/api/connect', controller.authorizeSpotify);
-    app.get('/api/callback', controller.spotifyToken);
-
-    app.get('/api/refreshtoken', controller.spotifyRefreshToken);
+    app.get('/api/connect', [authJwt.verifyToken], controller.authorizeSpotify);
+    app.get('/api/callback',[authJwt.verifyToken], controller.spotifyToken);
+    // app.get('/api/refreshtoken',[authJwt.verifyToken], controller.spotifyRefreshToken);
+    app.get('/api/playlist/sync', [authJwt.verifyToken], controller.spotifyPlaylistSync)
 }   

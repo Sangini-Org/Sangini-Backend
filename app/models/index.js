@@ -34,5 +34,7 @@ db.Sequelize = Sequelize;
 
 db.users.hasMany(db.userImages);
 db.userImages.belongsTo(db.users);
+db.users.hasMany(db.userPlaylist);
+db.userPlaylist.belongsTo(db.users);
 
 module.exports = db;
