@@ -67,28 +67,30 @@ exports.signin = async (req, res) => {
 exports.verifyUserEmail = async (req, res) => {
   try {
     const user = await User.findOne({ uniqueString: req.params.uniqueString });
-    if(!user)
+    console.log(user);
+    const date = new Date(user.updatedAt)
+    if (!user)
       return sendBadRequest(res, 404, "User not found!");
-    if(user.isVerified)
+    if (user.isVerified)
       return sendBadRequest(res, 401, "Invalid operation");
 
-    let timeElapsed = Date.now() - Date.parse(user.updatedAt);
-    if(timeElapsed < 8) {
+    let timeElapsed = (Date.now() - date.getTime()) / 1000;
+    timeElapsed /= (60 * 60);
+    timeElapsed = Math.abs(Math.round(timeElapsed));
+    if (timeElapsed < 24) {
       user.isVerified = true;
       await user.save();
-
-      return sendJSONResponse(res, 200, "User verified");
-    } else {
-        // Redirects the url
-        return res.redirect(`/api/auth/resendVerificationEmail/${user.uniqueString}`);
+      return sendJSONResponse(res, 200, 'User Verified');
+    }else {
+      return sendJSONResponse(res, 200, 'Link Expired');
     }
-  } catch(err) {
+  } catch (err) {
     return sendBadRequest(res, 401, err.message);
   }
 }
 
 // Resends the verification email if time limit of the verification link has passed
-exports.sendVerificationEmail = async (req, res) => {
+exports.resendVerificationEmail = async (req, res) => {
   try {
     const user = await User.findOne({ uniqueString: req.params.uniqueString });
     let uniqueString = generateRandomString('hex');
@@ -98,8 +100,8 @@ exports.sendVerificationEmail = async (req, res) => {
 
     sendUserEmail(user.email, uniqueString);
 
-    return sendJSONResponse(res, 200, "Email Resent"  );
-  } catch(err) {
+    return sendJSONResponse(res, 200, "Email Resent");
+  } catch (err) {
     return sendBadRequest(res, 401, "Invalid access");
   }
 }

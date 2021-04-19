@@ -12,10 +12,10 @@ const Transport = nodemailer.createTransport({
 
 module.exports = (email, uniqueString) => {
   let mailOptions = {
-    from: process.env.SENDER_NAME,
+    from: 'devkumar5436@gmail.com',
     to: email,
     subject: "Email confirmation",
-    html: `Press <a href="${process.env.SERVER_URL}/auth/verify/${uniqueString}"> here </a> to verify your email. Thanks`
+    html: `Press <a href="http://localhost:8080/api/auth/verify/${uniqueString}"> here </a> to verify your email. Thanks`
   };
 
   // Transport.verify((error, success) => {
@@ -25,7 +25,6 @@ module.exports = (email, uniqueString) => {
   //     console.log("Connection successful");
   //   }
   // });
-
   Transport.sendMail(mailOptions)
   .then( () => {
     console.log("Email sent.");

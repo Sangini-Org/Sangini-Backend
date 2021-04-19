@@ -13,6 +13,4 @@ module.exports = function (app) {
   app.get('/api/user/:id',[authJwt.verifyToken], controller.getUserById);
   app.put('/api/user/edit',[authJwt.verifyToken], controller.editUser);
   app.get('/api/users',[authJwt.verifyToken], controller.getAllUser);
-  app.post('/api/user/register', controller.registerUser);
-  app.get('/api/user/verify/:uniqueString', [authJwt.verifyToken], controller.verifyUser);
 };

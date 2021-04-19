@@ -18,5 +18,5 @@ module.exports = function (app) {
 
   app.post("/api/auth/signin", controller.signin);
   app.get("/api/auth/verify/:uniqueString", controller.verifyUserEmail);
-  app.get("/api/auth/resendVerificationEmail/:uniqueString", controller.sendVerificationEmail);
+  app.get("/api/auth/resendVerificationEmail/:uniqueString", controller.resendVerificationEmail);
 };
