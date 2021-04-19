@@ -40,14 +40,11 @@ module.exports = (sequelize, Sequelize) => {
     image: {
       type: Sequelize.STRING,
     },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    },
-    uniqueString: {
-      type: DataTypes.STRING
+    isVerfified: {
+      type: Sequelize.BOOLEAN,
     }
   });
+
 
   return User;
 };
