@@ -3,16 +3,16 @@ const { Sequelize, DataTypes, Model } = require("sequelize");
 module.exports = (sequelize, Sequelize) => {
   const Image = sequelize.define("images", {
     publicId: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         required: true,
         primaryKey: true
     },
     url: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         required: true
     },
-    type: {
-        type: DataTypes.ENUM,
+    imgType: {
+        type: Sequelize.STRING,
         values: ['profile', 'gallery']
     }
   });

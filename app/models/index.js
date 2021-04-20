@@ -37,11 +37,7 @@ db.Sequelize = Sequelize;
 db.user = require("./user.js")(sequelize, Sequelize);
 db.image = require("./image.js")(sequelize, Sequelize);
 
-db.user.hasMany(db.image, {
-  foreignKey: {
-    allowNull: false
-  }
-});
+db.user.hasMany(db.image);
 
 db.image.belongsTo(db.user);
 

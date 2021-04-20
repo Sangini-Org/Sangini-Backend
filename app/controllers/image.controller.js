@@ -6,20 +6,20 @@ const Image = db.images;
 
 exports.addImage = async (req, res) => {
     try {
-        const { type } = req.body;
+        const {type } = req.body;
+        console.log(req.userId)
         const file = req.files.photo;
-        await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+        await cloudinary.uploader.upload(file.tempFilePath, async (err, result) =>{
             if (err) {
                 return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
             }
             else {
-                console.log(result)
-                  let image = Image.create({
-                    public_id: result.public_id,
+                  let image = await Image.create({
+                    publicId: result.public_id,
                     url: result.secure_url,
-                    type: type,
+                    imgType: type,
+                    userId: req.userId
                 });
-               console.log(image);
             }
         });
         return sendJSONResponse(res, 200, "Image updated successfully");
