@@ -28,3 +28,23 @@ exports.addImage = async (req, res) => {
         return sendBadRequest(res, 500, `${err.message}`)
     }
 };
+
+exports.getImage = async (req, res) => {
+    try {
+      const {type } = req.query;
+
+      const images = await Image.findAll({
+        where: {
+            imgType:type
+        } })
+  
+      if(images) {
+          res.send(images);
+      } else {
+        return sendBadRequest(res, 404, "Users Not Found");
+      }
+    }
+    catch (err) {
+      return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)
+    }
+  };

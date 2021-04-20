@@ -15,4 +15,5 @@ module.exports = function (app) {
   app.put('/api/user/edit',[authJwt.verifyToken], controller.editUser);
   app.get('/api/users',[authJwt.verifyToken], controller.getAllUser);
   app.put('/api/upload',[authJwt.verifyToken], iController.addImage);
+  app.get('/api/image',[authJwt.verifyToken], iController.getImage);
 };
