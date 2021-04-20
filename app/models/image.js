@@ -14,10 +14,6 @@ module.exports = (sequelize, Sequelize) => {
     type: {
         type: DataTypes.ENUM,
         values: ['profile', 'gallery']
-    },
-    userId: {
-      type: DataTypes.STRING,
-      required: true,
     }
   });
 
