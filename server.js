@@ -4,6 +4,10 @@ const cors = require("cors");
 require('dotenv').config()
 const app = express();
 
+var fileUpload = require('express-fileupload');
+app.use(fileUpload({
+  useTempFiles: true
+}));
 
 var corsOptions = {
   origin: "http://localhost:3000",

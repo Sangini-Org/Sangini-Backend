@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -31,5 +33,16 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+db.user = require("./user.js")(sequelize, Sequelize);
+db.image = require("./image.js")(sequelize, Sequelize);
+
+db.user.hasMany(db.image, {
+  foreignKey: {
+    allowNull: false
+  }
+});
+
+db.image.belongsTo(db.user);
 
 module.exports = db;
