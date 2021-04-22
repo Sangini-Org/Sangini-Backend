@@ -1,5 +1,7 @@
 const userController = require("../controllers/user.controller");
 const userimageController = require("../controllers/userImage.controller");
+const controller = require("../controllers/user.controller");
+
 const { authJwt } = require("../middleware");
 
 module.exports = function (app) {
@@ -23,3 +25,4 @@ module.exports = function (app) {
   app.put('/api/user/update/friendrequest', [authJwt.verifyToken], controller.updateFriendRequest);
   app.delete('/api/user/delete/friendrequest', [authJwt.verifyToken], controller.deleteFriendRequest);
 };
+ 
