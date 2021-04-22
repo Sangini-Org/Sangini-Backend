@@ -5,7 +5,7 @@ const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
 
-const Op = db.Sequelize.Op;
+const Op = Sequelize.Op;
 
 exports.getUserById = async (req, res) => {
   try {

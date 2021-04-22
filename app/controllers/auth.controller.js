@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
 
     if (user) {
       sendUserEmail(req.body.email, uniqueString);
-      return sendJSONResponse(res, 200, 'User Registered Successfully');
+      return sendJSONResponse(res, 200, 'User Registered Successfully', user);
     }
   }
   catch (err) {
