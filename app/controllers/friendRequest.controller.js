@@ -48,9 +48,10 @@ exports.deleteFriendRequest = async (req, res) => {
 
 exports.listFriendRequest = async (req, res) => {
     try {
+        const {status} =  req.query;
         const requests = await FriendRequest.findAll({
             where: {
-                status: req.body.status,
+                status: status,
                 receiverId: req.userId
             }  
         });
