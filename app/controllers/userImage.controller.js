@@ -2,23 +2,24 @@ const db = require("../models");
 const { cloudinary } = require('../utils/cloudinary');
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 
-const Image = db.images;
+const userImage = db.userImages;
 
-exports.addImage = async (req, res) => {
+exports.addUserImage = async (req, res) => {
     try {
+        const userId = req.userId
         const {type } = req.body;
-        console.log(req.userId)
-        const file = req.files.photo;
+        const file = req.files.image;
         await cloudinary.uploader.upload(file.tempFilePath, async (err, result) =>{
-            if (err) {
-                return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
-            }
-            else {
-                  let image = await Image.create({
+          if (err) {
+            return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
+          }
+          else {
+              console.log(userId)
+                  await userImage.create({
+                    userId: userId,
                     publicId: result.public_id,
                     url: result.secure_url,
                     imgType: type,
-                    userId: req.userId
                 });
             }
         });
@@ -29,15 +30,16 @@ exports.addImage = async (req, res) => {
     }
 };
 
-exports.getImage = async (req, res) => {
+exports.getUserImage = async (req, res) => {
     try {
       const {type } = req.query;
 
-      const images = await Image.findAll({
+      const images = await userImage.findAll({
         where: {
             imgType:type
         } })
-  
+        
+      console.log(images);
       if(images) {
           res.send(images);
       } else {

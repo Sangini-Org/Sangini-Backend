@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize, Sequelize) => {
-  const Image = sequelize.define("images", {
+  const userImage = sequelize.define("userImages", {
     publicId: {
         type: Sequelize.STRING,
         required: true,
@@ -17,5 +17,5 @@ module.exports = (sequelize, Sequelize) => {
     }
   });
 
-  return Image;
+  return userImage;
 };

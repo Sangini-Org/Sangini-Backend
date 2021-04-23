@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -35,10 +33,9 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.user = require("./user.js")(sequelize, Sequelize);
-db.image = require("./image.js")(sequelize, Sequelize);
+db.userImage = require("./userImage.js")(sequelize, Sequelize);
 
-db.user.hasMany(db.image);
-
-db.image.belongsTo(db.user);
+db.user.hasMany(db.userImage);
+db.userImage.belongsTo(db.user);
 
 module.exports = db;
