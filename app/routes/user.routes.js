@@ -14,6 +14,8 @@ module.exports = function (app) {
   app.get('/api/user/:id',[authJwt.verifyToken], userController.getUserById);
   app.put('/api/user/edit',[authJwt.verifyToken], userController.editUser);
   app.get('/api/users',[authJwt.verifyToken], userController.getAllUser);
-  app.put('/api/user/image/upload',[authJwt.verifyToken], userimageController.addUserImage);
-  app.get('/api/user/image',[authJwt.verifyToken], userimageController.getUserImage);
+  app.post('/api/user/image/upload',[authJwt.verifyToken], userimageController.addUserImage);
+  app.put('/api/user/image/update',[authJwt.verifyToken], userimageController.updateUserImage);
+  app.delete('/api/user/image/delete', [authJwt.verifyToken], userimageController.deleteUserImage);
+  app.get('/api/user/image/all',[authJwt.verifyToken], userimageController.getUserImage);
 };
