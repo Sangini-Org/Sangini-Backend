@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize, Sequelize) => {
-  const FriendRequest = sequelize.define("friendrequest", {
+  const FriendRequest = sequelize.define("friendrequests", {
     senderId: {
         type: DataTypes.UUID,
         primaryKey: true
