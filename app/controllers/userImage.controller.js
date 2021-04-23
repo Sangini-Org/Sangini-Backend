@@ -15,8 +15,7 @@ exports.addUserImage = async (req, res) => {
           }
           else {
               console.log(userId)
-                  await userImage.create({
-                    userId: userId,
+                const image =   await userImage.create({
                     publicId: result.public_id,
                     url: result.secure_url,
                     imgType: type,

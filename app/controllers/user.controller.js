@@ -1,4 +1,3 @@
-const { user } = require("../models");
 const db = require("../models");
 const User = db.users;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
