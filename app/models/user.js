@@ -40,6 +40,9 @@ module.exports = (sequelize, Sequelize) => {
     isVerfified: {
       type: Sequelize.BOOLEAN,
       defaultValue: false
+    },
+    uniqueString: {
+      type: DataTypes.STRING
     }
   });
 

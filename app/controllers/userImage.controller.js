@@ -30,8 +30,7 @@ exports.addUserImage = async (req, res) => {
 
 exports.getUserImage = async (req, res) => {
   try {
-    var { type } = req.query;
-    if (!type) { type = 'profile' }
+    const { type } = req.query;
     const images = await userImage.findAll({
       where: {
         imgType: type
@@ -50,7 +49,7 @@ exports.getUserImage = async (req, res) => {
 
 exports.updateUserImage = async (req, res) => {
   try {
-    const { type, publicId } = req.body;
+    const { publicId } = req.body;
     const file = req.files.image;
     await cloudinary.uploader.upload(file.tempFilePath, { public_id: publicId }, async (err, result) => {
       if (err) {
@@ -59,7 +58,6 @@ exports.updateUserImage = async (req, res) => {
       else {
         const image = await userImage.update({
           url: result.secure_url,
-          imgType: type
         }, {
           where: { publicId: publicId }
         });
@@ -74,15 +72,16 @@ exports.updateUserImage = async (req, res) => {
 
 exports.deleteUserImage = async (req, res) => {
   try {
-    const {publicId} =req.body;
-    let result = await userImage.destroy({
-      where: {
-        publicId: publicId,
-        userId: req.userId,
-      }
+    const { publicId } = req.body;
+    await cloudinary.uploader.destroy( publicId,(result,err)=>{
+       userImage.destroy({
+        where: {
+          publicId: publicId,
+          userId: req.userId,
+        }
+      });
     });
-
-    return sendJSONResponse(res, 200, "Image deleted", result);
+    return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);
   }
