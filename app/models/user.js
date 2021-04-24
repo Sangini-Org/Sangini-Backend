@@ -37,17 +37,15 @@ module.exports = (sequelize, Sequelize) => {
     dob: {
       type: Sequelize.DATE,
     },
-    image: {
-      type: Sequelize.STRING,
-    },
-    isVerified: {
-      type: DataTypes.BOOLEAN,
+    isVerfified: {
+      type: Sequelize.BOOLEAN,
       defaultValue: false
     },
     uniqueString: {
       type: DataTypes.STRING
     }
   });
+
 
   return User;
 };

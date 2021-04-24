@@ -24,9 +24,13 @@ describe("USERS API", () => {
     // deleting existing record in sangini_test 
     after(async () => {
         await Promise.all([
+            db.userImages.destroy({
+                where: {},
+                truncate: {cascade: true}
+            }),
             db.users.destroy({
                 where: {},
-                truncate: true
+                truncate: {cascade: true}
             })
         ])
     })

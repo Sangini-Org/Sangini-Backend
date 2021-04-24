@@ -1,4 +1,5 @@
-const controller = require("../controllers/user.controller");
+const userController = require("../controllers/user.controller");
+const userimageController = require("../controllers/userImage.controller");
 const { authJwt } = require("../middleware");
 
 module.exports = function (app) {
@@ -10,7 +11,11 @@ module.exports = function (app) {
     next();
   });
 
-  app.get('/api/user/:id',[authJwt.verifyToken], controller.getUserById);
-  app.put('/api/user/edit',[authJwt.verifyToken], controller.editUser);
-  app.get('/api/users',[authJwt.verifyToken], controller.getAllUser);
+  app.get('/api/user/:id',[authJwt.verifyToken], userController.getUserById);
+  app.put('/api/user/edit',[authJwt.verifyToken], userController.editUser);
+  app.get('/api/users',[authJwt.verifyToken], userController.getAllUser);
+  app.post('/api/user/image/upload',[authJwt.verifyToken], userimageController.addUserImage);
+  app.put('/api/user/image/update',[authJwt.verifyToken], userimageController.updateUserImage);
+  app.delete('/api/user/image/delete', [authJwt.verifyToken], userimageController.deleteUserImage);
+  app.get('/api/user/image/all',[authJwt.verifyToken], userimageController.getUserImage);
 };
