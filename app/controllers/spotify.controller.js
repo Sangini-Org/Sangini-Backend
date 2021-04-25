@@ -132,7 +132,7 @@ exports.spotifyPlaylistSync = async (req, res) => {
   try {
     const user = await User.findOne({
       where: {
-        id: 'd56f9d2e-a92f-4ba7-9171-e909251fc5cd',
+        id: req.userId,
       },
       attributes: { exclude: ["password"] },
     });
@@ -158,16 +158,9 @@ exports.spotifyPlaylistSync = async (req, res) => {
       
           request.get(options, function (error, response, body) {
             console.log(body.items)
-              for( let item of body.items){
-                  userPlaylist.create({
-                    userId: req.userId,
-                    trackId: item.track?.id,
-                    trackImg: item.track?.name,
-                    trackPreview: item.track?.preview_url,
-                    trackImg: item.track.album[0]?.images[0]?.url,
-                    playlistId: user.dataValues.spotifyPlaylistId,
-                  })   
-              }
+            for(let item of body.items ){
+              
+            }
               return sendJSONResponse(res,200,"playlist synced")
           });
       }
