@@ -7,7 +7,9 @@ const stateKey = "spotify_auth_state";
 const db = require("../models");
 const { access } = require("fs");
 const User = db.users;
-const userPlaylist = db.userPlaylist;
+const UserTrack = db.usertracks;
+const Track = db.tracks;
+
 
 exports.authorizeSpotify = (req, res) => {
   console.log("working");
@@ -17,13 +19,13 @@ exports.authorizeSpotify = (req, res) => {
   const scope = "user-read-private user-read-email playlist-modify-public";
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
-      querystring.stringify({
-        response_type: "code",
-        client_id: process.env.CLIENT_ID,
-        scope: scope,
-        redirect_uri: process.env.REDIRECT_URI,
-        state: state,
-      })
+    querystring.stringify({
+      response_type: "code",
+      client_id: process.env.CLIENT_ID,
+      scope: scope,
+      redirect_uri: process.env.REDIRECT_URI,
+      state: state,
+    })
   );
 };
 
@@ -36,9 +38,9 @@ exports.spotifyToken = (req, res) => {
   if (state === null || state !== storedState) {
     res.redirect(
       "/#" +
-        querystring.stringify({
-          error: "state_mismatch",
-        })
+      querystring.stringify({
+        error: "state_mismatch",
+      })
     );
   } else {
     res.clearCookie(stateKey);
@@ -88,7 +90,12 @@ exports.spotifyToken = (req, res) => {
               // json: true
             };
             let sanginiPlaylistId = "";
+            // console.log(body.items)
+            for(let item of body.items){
+              console.log(item.name)
+            }
             const flag = body.items.find((item) => item.name === "sangini");
+            console.log(flag)
             if (!flag) {
               request.post(
                 createplaylistOptions,
@@ -99,7 +106,7 @@ exports.spotifyToken = (req, res) => {
             } else {
               sanginiPlaylistId = flag.id;
             }
-            console.log(sanginiPlaylistId);
+            console.log('sdfjkasdjfk', sanginiPlaylistId);
             await User.update(
               {
                 isSpotifyConnected: true,
@@ -115,7 +122,7 @@ exports.spotifyToken = (req, res) => {
             return sendJSONResponse(
               res,
               "200",
-              "spotify playlist created/added to your profile",body
+              "spotify playlist created/added to your profile", body
             );
           } catch (err) {
             return sendBadRequest(res, 500, `${err.message}`);
@@ -141,31 +148,70 @@ exports.spotifyPlaylistSync = async (req, res) => {
       url: 'https://accounts.spotify.com/api/token',
       headers: { 'Authorization': 'Basic ' + (Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64')) },
       form: {
-          grant_type: 'refresh_token',
-          refresh_token: refresh_token
+        grant_type: 'refresh_token',
+        refresh_token: refresh_token
       },
       json: true
-  };
+    };
 
-   request.post(authOptions, function (error, response, body) {
+    request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
-           access_token = body.access_token;
-           const options = {
-            url: `https://api.spotify.com/v1/playlists/${user.dataValues.spotifyPlaylistId}/tracks`,
-            headers: { Authorization: "Bearer " + access_token },
-            json: true,
-          };
-      
-          request.get(options, function (error, response, body) {
-            console.log(body.items)
-            for(let item of body.items ){
-              
+        access_token = body.access_token;
+        const options = {
+          url: `https://api.spotify.com/v1/playlists/${user.dataValues.spotifyPlaylistId}/tracks`,
+          headers: { Authorization: "Bearer " + access_token },
+          json: true,
+        };
+
+        request.get(options, async function (error, response, body) {
+          console.log(body.items)
+          let tracks = [];
+          for (let item of body.items) {
+            console.log(item.track.name)
+            console.log(item.track.id)
+            tracks.push(item.track.id)
+            const track = await Track.findOne({
+                  where:{
+                    trackId:item.track.id
+                  }
+            })
+            if(!track){
+              await Track.create({
+                trackId:item.track.id,
+                trackName:item.track.name
+              })
             }
-              return sendJSONResponse(res,200,"playlist synced")
-          });
+          }
+          const usertrack = await UserTrack.findOne({
+            where: {
+              userId: req.userId
+            }
+          }
+          )
+          if (!usertrack) {
+            await UserTrack.create({
+              tracklist: tracks,
+              userId: req.userId
+            })
+          }
+          else {
+            await UserTrack.update(
+              {
+                tracklist: tracks
+              },
+              {
+                where: {
+                  userId: req.userId
+                }
+              }
+
+            )
+          }
+          return sendJSONResponse(res, 200, "playlist synced")
+        });
       }
-  });
+    });
   } catch (err) {
-    return sendBadRequest(res,500, `${err.message}`)
+    return sendBadRequest(res, 500, `${err.message}`)
   }
 };

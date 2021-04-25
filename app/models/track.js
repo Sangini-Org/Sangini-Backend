@@ -6,12 +6,6 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       primaryKey: true
     },
-    trackImg: {
-      type: Sequelize.STRING,
-    },
-    trackPreview: {
-      type: Sequelize.STRING,
-    },
     trackName: {
       type: Sequelize.STRING,
     }
