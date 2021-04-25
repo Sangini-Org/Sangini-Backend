@@ -1,13 +1,10 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize, Sequelize) => {
-  const userPlaylist = sequelize.define("userPlaylist", {
-    playlistId: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-    },  
+  const track = sequelize.define("tracks", {  
     trackId: {
       type: Sequelize.STRING,
+      primaryKey: true
     },
     trackImg: {
       type: Sequelize.STRING,
@@ -21,5 +18,5 @@ module.exports = (sequelize, Sequelize) => {
   });
 
 
-  return userPlaylist;
+  return track;
 };

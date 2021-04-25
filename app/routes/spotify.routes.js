@@ -12,6 +12,5 @@ module.exports = function (app) {
 
     app.get('/api/connect', [authJwt.verifyToken], controller.authorizeSpotify);
     app.get('/api/callback',[authJwt.verifyToken], controller.spotifyToken);
-    // app.get('/api/refreshtoken',[authJwt.verifyToken], controller.spotifyRefreshToken);
     app.get('/api/playlist/sync', controller.spotifyPlaylistSync)
 }   
