@@ -16,3 +16,13 @@ configure `db.config.js`
 
 ### For creating the test database 
 `CREATE DATABASE sangini_test WITH OWNER postgres;`
+
+
+
+
+# For spotify
+
+- user will signup/login on spotify account
+- spotify will give accesstoken & refreshtoken 
+- now user have to click on button to sync the songs this will call 
+- sync api (/api/playlist/sync)

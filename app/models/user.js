@@ -43,6 +43,15 @@ module.exports = (sequelize, Sequelize) => {
     },
     uniqueString: {
       type: DataTypes.STRING
+    },
+    spotifyRefreshToken: {
+      type: Sequelize.STRING,
+    },
+    isSpotifyConnected: {
+      type: Sequelize.BOOLEAN, 
+    },
+    spotifyPlaylistId: {
+      type: Sequelize.STRING,
     }
   });
 

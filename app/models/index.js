@@ -34,5 +34,8 @@ db.Sequelize = Sequelize;
 
 db.users.hasMany(db.userImages);
 db.userImages.belongsTo(db.users);
+db.users.hasOne(db.usertracks);
+db.usertracks.belongsTo(db.users);
+
 
 module.exports = db;
