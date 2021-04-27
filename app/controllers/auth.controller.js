@@ -2,7 +2,8 @@ const db = require("../models");
 const config = require("../config/auth.config");
 
 // To send the email to the user
-const sendUserEmail = require("../middleware/sendUserEmail")
+const sendUserEmail = require("../middleware/sendUserEmail");
+const sendResetEmail = require("../middleware/sendResetEmail");
 const User = db.users;
 const { sendJSONResponse, sendBadRequest, generateRandomString } = require("../utils/handle")
 var jwt = require("jsonwebtoken");
@@ -104,4 +105,58 @@ exports.resendVerificationEmail = async (req, res) => {
   } catch (err) {
     return sendBadRequest(res, 401, "Invalid access");
   }
+}
+//to reset Password
+exports.forgotPassword = async (req,res) => { 
+  try{
+    const user = await User.findOne({ email: req.body.email });
+   // console.log(user);
+    if (!user)
+      return sendBadRequest(res, 404, "Invalid Email!");
+    else{
+      const forgetPasswordToken = jwt.sign({ user: user.email }, 
+       config.resetSecret, { expiresIn: '10m' });
+      user.forgetPasswordToken = forgetPasswordToken;
+      
+      await user.save();  
+      sendResetEmail(user.email, forgetPasswordToken);
+      return sendJSONResponse(res, 200, "Reset link sent");
+    }
+  } catch (err) {
+    return sendBadRequest(res, 401, "Invalid access");
+  }
+}
+exports.resetPassword = async(req,res) =>{
+  const resetToken = req.params.token;
+  const newPassword = req.body;
+
+  if(resetToken) {
+    jwt.verify(resetToken, config.resetSecret, (error, decodedToken) => {
+         if(error) {
+          return sendBadRequest(res, 404, "Token Invalid or Expired");
+         }
+    })
+  }
+
+  try{
+    const user = await User.findOne({
+      where:{ forgetPasswordToken:resetToken }
+    });
+   
+    if(!user) {
+      return sendBadRequest(res, 404, "We could not find a match for this!");
+    }
+    const hashPassword = bcrypt.hashSync(newPassword.password, 8);
+    newPassword.password = hashPassword;
+    //update password
+    user.password=newPassword.password;
+    user.forgetPasswordToken = null;
+    await user.save();
+
+    return sendJSONResponse(res, 200, "Password Updated");   
+  }
+  catch{
+    return sendBadRequest(res, 401, "Invalid access");
+  }
+
 }
