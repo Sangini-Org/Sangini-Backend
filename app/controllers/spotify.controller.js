@@ -105,7 +105,7 @@ exports.spotifyToken = (req, res) => {
               // json: true
             };
             let sanginiPlaylistId = "";
-            const flag = body?.items.find((item) => item.name === "sangini") || null;
+            const flag = body.items.find((item) => item.name === "sangini") || null;
             if (!flag) {
               request.post(
                 createplaylistOptions,
