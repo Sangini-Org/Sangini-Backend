@@ -1,5 +1,7 @@
 const db = require("../models");
 const User = db.users;
+const UserTrack = db.usertracks;
+const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
 
@@ -74,5 +76,30 @@ exports.getAllUser = async (req, res) => {
   }
   catch (err) {
     return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)
+  }
+};
+
+exports.getPlaylist = async (req, res) => {
+  try {
+    const alltracks = await UserTrack.findOne({
+      where: { userId: req.query.userId ? req.query.userId : req.userId }
+    });
+    const trackslist =[];
+    
+    alltracks.tracklist.forEach(async trackId => {
+      
+      const track = await Track.findOne({
+        attributes: ['trackName'],
+        where: { trackId: trackId }
+      });
+      trackslist.push({trackName: track.trackName, trackId: trackId});
+      
+      if (trackslist.length==alltracks.tracklist.length) {
+        return sendJSONResponse(res, 200, "user playlist", trackslist)
+      } 
+    });
+  }
+  catch (err) {
+    return sendBadRequest(res, 500, 'Error while getting playlist ' + err.message)
   }
 };
