@@ -1,5 +1,7 @@
 const userController = require("../controllers/user.controller");
+const friendrequestController = require("../controllers/friendRequest.controller");
 const userimageController = require("../controllers/userImage.controller");
+
 const { authJwt } = require("../middleware");
 
 module.exports = function (app) {
@@ -19,4 +21,9 @@ module.exports = function (app) {
   app.delete('/api/user/image/delete', [authJwt.verifyToken], userimageController.deleteUserImage);
   app.get('/api/user/image/all',[authJwt.verifyToken], userimageController.getUserImage);
   app.get('/api/user/:id/playlist', userController.getPlaylist);
+  app.post('/api/user/create/friendrequest', [authJwt.verifyToken], friendrequestController.createFriendRequest);
+  app.put('/api/user/update/friendrequest', [authJwt.verifyToken], friendrequestController.updateFriendRequest);
+  app.delete('/api/user/delete/friendrequest', [authJwt.verifyToken], friendrequestController.deleteFriendRequest);
+  app.get('/api/user/list/friendrequest',[authJwt.verifyToken],friendrequestController.listFriendRequest);
 };
+ 

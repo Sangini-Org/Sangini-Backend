@@ -1,10 +1,10 @@
 const db = require("../models");
 const config = require("../config/auth.config");
 
-// To send the email to the user
-const sendUserEmail = require("../middleware/sendUserEmail")
 const User = db.users;
-const { sendJSONResponse, sendBadRequest, generateRandomString } = require("../utils/handle")
+// To send the email to the user
+const sendUserEmail = require("../middleware/sendUserEmail");
+const { sendJSONResponse, sendBadRequest, generateRandomString } = require("../utils/handle");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
