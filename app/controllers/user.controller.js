@@ -81,10 +81,13 @@ exports.getAllUser = async (req, res) => {
 
 exports.getPlaylist = async (req, res) => {
   try {
+    const trackslist = [];
     const alltracks = await UserTrack.findOne({
       where: { userId: req.params.id }
     });
-    const trackslist = [];
+    if (!alltracks) {
+      return sendJSONResponse(res, 200, 'user playlist', trackslist);
+    }
     alltracks.tracklist.forEach(async trackId => {
       const track = await Track.findOne({
         where: { trackId: trackId }
