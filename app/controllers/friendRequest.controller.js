@@ -1,4 +1,5 @@
-const { FriendRequest } = require("../models");
+const db = require("../models");
+const FriendRequest = db.friendrequests;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 
 exports.createFriendRequest = async (req, res) => {

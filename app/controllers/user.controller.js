@@ -7,7 +7,6 @@ const { getPagingData, getPagination } = require("../utils/paginate.js");
 
 const Op = db.Sequelize.Op;
 const User = db.users;
-const FriendRequest = db.friendrequests;
 
 exports.getUserById = async (req, res) => {
   try {
