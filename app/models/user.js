@@ -49,12 +49,14 @@ module.exports = (sequelize, Sequelize) => {
     },
     isSpotifyConnected: {
       type: Sequelize.BOOLEAN, 
+      defaultValue: false
     },
     spotifyPlaylistId: {
       type: Sequelize.STRING,
     },
     isProfileUpdated: {
-      type: Sequelize.BOOLEAN, 
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
     }
   });
 

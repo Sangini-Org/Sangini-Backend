@@ -18,8 +18,6 @@ exports.signup = async (req, res) => {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
       uniqueString: uniqueString,
-      isProfileUpdated: false,
-      isSpotifyConnected: false,
     });
 
     if (user) {
