@@ -29,22 +29,32 @@ exports.getUserById = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   try {
-    const { firstName, lastName, bio, state, city, gender } = req.body;
-    await User.update({
-      firstName,
-      lastName,
-      bio,
-      state,
-      city,
-      gender
-    },
-      {
-        where: {
-          id: req.userId,
-        },
-      }
-    );
-    return sendJSONResponse(res, 200, "profile updated successfully")
+    const { firstName, lastName, bio, state, city, gender ,dob} = req.body;
+    const fields = { firstName, lastName, bio, state, city, gender, dob };
+    var updateState = true;
+
+    await User.update(
+      fields, { where: { id: req.userId } 
+    }).then(async (result) => {
+        
+      const user = await User.findOne({
+        where: { id: req.userId },
+        attributes: { exclude: ['password'] }
+        });
+
+      Object.keys(user.dataValues).forEach(key => {
+        if ((key in fields) && (user.dataValues[key] == null)) {
+           updateState = false;
+          }
+        });
+
+      User.update({ isProfileUpdated: updateState }, { where: { id: req.userId } });
+      });
+
+    if(updateState==false){
+    return sendJSONResponse(res, 400, "Please complete your profile");
+    }
+    return sendJSONResponse(res, 200, "Profile updated successfully ");
   }
   catch (err) {
     return sendBadRequest(res, 500, `${err.message}`)

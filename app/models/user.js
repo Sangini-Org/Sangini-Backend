@@ -52,6 +52,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     spotifyPlaylistId: {
       type: Sequelize.STRING,
+    },
+    isProfileUpdated: {
+      type: Sequelize.BOOLEAN, 
     }
   });
 

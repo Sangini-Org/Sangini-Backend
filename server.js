@@ -27,10 +27,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const db = require("./app/models");
 if (process.env.NODE_ENV !== "test" ){
  db.sequelize.sync();
-  // db.sequelize.sync({alter: true});
+// db.sequelize.sync({alter: true});
 // force: true will drop the table if it already exists
 // db.sequelize.sync({force: true}).then(() => {
-//  console.log('Drop and Resync Database with { force: true }');
+// console.log('Drop and Resync Database with { force: true }');
 // });
 }
 
