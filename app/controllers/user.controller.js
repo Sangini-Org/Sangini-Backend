@@ -1,5 +1,7 @@
 const db = require("../models");
 const User = db.users;
+const UserTrack = db.usertracks;
+const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
 
@@ -11,7 +13,7 @@ exports.getUserById = async (req, res) => {
       where: {
         id: req.params.id,
       },
-      attributes: { exclude: ['password'] },    
+      attributes: { exclude: ['password'] },
     })
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
@@ -58,14 +60,14 @@ exports.getAllUser = async (req, res) => {
     Object.entries(filters).forEach(filter => {
       Object.assign(condition, filter[1] ? { [filter[0]]: { [Op.like]: `%${filter[1]}%` } } : null);
     })
-    
+
     const { limit, offset } = getPagination(page, offlimit);
     const users = await User.findAndCountAll({
       where: condition, limit, offset,
       attributes: { exclude: ['password'] }
     })
 
-    if(users) {
+    if (users) {
       const response = getPagingData(users, page, limit);
       res.send(response);
     } else {
@@ -74,5 +76,29 @@ exports.getAllUser = async (req, res) => {
   }
   catch (err) {
     return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)
+  }
+};
+
+exports.getPlaylist = async (req, res) => {
+  try {
+    const trackslist = [];
+    const alltracks = await UserTrack.findOne({
+      where: { userId: req.params.id }
+    });
+    if (!alltracks) {
+      return sendJSONResponse(res, 200, 'user playlist', trackslist);
+    }
+    alltracks.tracklist.forEach(async trackId => {
+      const track = await Track.findOne({
+        where: { trackId: trackId }
+      });
+      trackslist.push({ trackName: track.trackName, trackId: trackId });
+      if (trackslist.length == alltracks.tracklist.length) {
+        return sendJSONResponse(res, 200, "user playlist", trackslist)
+      }
+    });
+  }
+  catch (err) {
+    return sendBadRequest(res, 500, 'Error while getting playlist ' + err.message)
   }
 };
