@@ -6,7 +6,6 @@ const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
 
 const Op = db.Sequelize.Op;
-const User = db.users;
 
 exports.getUserById = async (req, res) => {
   try {
