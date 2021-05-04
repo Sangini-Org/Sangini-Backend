@@ -33,7 +33,7 @@ exports.getUserImage = async (req, res) => {
   try {
     const { type } = req.query;
     let condition = {};
-    condition.userId = req.params.id;
+    condition.userId = req.userId;
     if(type){
       condition.imgType = type;
     }
