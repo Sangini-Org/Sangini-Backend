@@ -1,14 +1,38 @@
+const { checkDuplicateUsernameOrEmail } = require("../middleware/verifySignUp");
 const db = require("../models");
 const { cloudinary } = require('../utils/cloudinary');
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 
 const userImage = db.userImages;
+const User = db.users;
 const Op = db.Sequelize.Op;
+
+async function checkImageCount(userId){
+  var status = false;  
+  const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
+    if(image){
+      const images = await userImage.findAll({ where: { userId: userId, imgType : 'gallery'}});
+      let count = 0;
+      images.forEach((image)=>{
+        count++;  
+      });
+      if (count>=2){ 
+       status=true;
+      }
+    } 
+  User.update({ imagesExist: status }, { where: { id: userId } });   
+}
 
 exports.addUserImage = async (req, res) => {
   try {
     const { type } = req.body;
     const file = req.files.image;
+    if(type=='profile'){
+       const image = await userImage.findOne({ where: { userId: req.userId , imgType : 'profile'}});
+       if(image){
+        return sendJSONResponse(res, 400, "Can't create two profile image")   
+       }
+    } 
     await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
       if (err) {
         return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
@@ -19,6 +43,8 @@ exports.addUserImage = async (req, res) => {
           url: result.secure_url,
           imgType: type,
           userId: req.userId
+        }).then(()=>{
+          checkImageCount(req.userId);
         });
       }
     });
@@ -88,6 +114,7 @@ exports.deleteUserImage = async (req, res) => {
         }
       });
     });
+    checkImageCount(req.userId);
     return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);

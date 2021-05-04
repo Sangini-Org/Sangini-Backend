@@ -57,6 +57,10 @@ module.exports = (sequelize, Sequelize) => {
     isProfileUpdated: {
       type: Sequelize.BOOLEAN,
       defaultValue: false
+    },
+    imagesExist:{
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
     }
   });
 

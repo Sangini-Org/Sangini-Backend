@@ -32,6 +32,7 @@ exports.editUser = async (req, res) => {
     const { firstName, lastName, bio, state, city, gender ,dob} = req.body;
     const fields = { firstName, lastName, bio, state, city, gender, dob };
     var updateState = true;
+    var imageState = false;
 
     await User.update(
       fields, { where: { id: req.userId } 
@@ -41,18 +42,22 @@ exports.editUser = async (req, res) => {
         where: { id: req.userId },
         attributes: { exclude: ['password'] }
         });
-
+     
+       imageState= user.dataValues.imagesExist;
       Object.keys(user.dataValues).forEach(key => {
         if ((key in fields) && (user.dataValues[key] == null)) {
            updateState = false;
           }
         });
 
+       if(imageState== false){updateState = false;}   
       User.update({ isProfileUpdated: updateState }, { where: { id: req.userId } });
-      });
-
+    });
+    if(imageState==false){
+    return sendJSONResponse(res, 400, "Please complete your image section. Info updated");
+    }
     if(updateState==false){
-    return sendJSONResponse(res, 400, "Please complete your profile");
+    return sendJSONResponse(res, 400, "Please complete your profile info");
     }
     return sendJSONResponse(res, 200, "Profile updated successfully ");
   }
