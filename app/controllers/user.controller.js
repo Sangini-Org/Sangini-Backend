@@ -4,6 +4,7 @@ const UserTrack = db.usertracks;
 const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
+const { checkImageCount } = require("../controllers/userImage.controller");
 
 const Op = db.Sequelize.Op;
 
@@ -32,8 +33,7 @@ exports.editUser = async (req, res) => {
     const { firstName, lastName, bio, state, city, gender ,dob} = req.body;
     const fields = { firstName, lastName, bio, state, city, gender, dob };
     var updateState = true;
-    var imageState = false;
-
+    
     await User.update(
       fields, { where: { id: req.userId } 
     }).then(async (result) => {
@@ -43,21 +43,20 @@ exports.editUser = async (req, res) => {
         attributes: { exclude: ['password'] }
         });
      
-       imageState= user.dataValues.imagesExist;
       Object.keys(user.dataValues).forEach(key => {
         if ((key in fields) && (user.dataValues[key] == null)) {
            updateState = false;
           }
-        });
-
-       if(imageState== false){updateState = false;}   
-      User.update({ isProfileUpdated: updateState }, { where: { id: req.userId } });
-    });
-    if(imageState==false){
-    return sendJSONResponse(res, 400, "Please complete your image section. Info updated");
-    }
+      });
+    }); 
+    const imageStatus = await checkImageCount(req.userId);
+    if(imageStatus== false){
+      updateState = false;
+    }   
+    User.update({ isProfileUpdated: updateState }, { where: { id: req.userId } }); 
+   
     if(updateState==false){
-    return sendJSONResponse(res, 400, "Please complete your profile info");
+    return sendJSONResponse(res, 400, "Please complete your profile ");
     }
     return sendJSONResponse(res, 200, "Profile updated successfully ");
   }

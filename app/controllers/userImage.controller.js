@@ -7,22 +7,22 @@ const userImage = db.userImages;
 const User = db.users;
 const Op = db.Sequelize.Op;
 
-async function checkImageCount(userId){
-  var status = false;  
-  const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
-    if(image){
-      const images = await userImage.findAll({ where: { userId: userId, imgType : 'gallery'}});
-      let count = 0;
-      images.forEach((image)=>{
-        count++;  
-      });
-      if (count>=2){ 
-       status=true;
+const checkImageCount= async (userId) =>{
+    var status = false;  
+    const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
+      if(image){
+        const images = await userImage.findAll({ where: { userId: userId, imgType : 'gallery'}});
+        let count = 0;
+        images.forEach((image)=>{
+          count++;  
+        });
+        if (count>=2){ 
+         status=true;
+        }
       }
-    } 
-  User.update({ imagesExist: status }, { where: { id: userId } });   
+    return status;
 }
-
+ 
 exports.addUserImage = async (req, res) => {
   try {
     const { type } = req.body;
@@ -43,9 +43,10 @@ exports.addUserImage = async (req, res) => {
           url: result.secure_url,
           imgType: type,
           userId: req.userId
-        }).then(()=>{
-          checkImageCount(req.userId);
-        });
+        }).then(async()=>{
+          const status = await checkImageCount(req.userId);
+          User.update({ isProfileUpdated: status }, { where: { id: req.userId } });
+        })
       }
     });
     return sendJSONResponse(res, 200, "Image uploaded successfully");
@@ -112,11 +113,16 @@ exports.deleteUserImage = async (req, res) => {
           publicId: publicId,
           userId: req.userId,
         }
-      });
+      });  
     });
-    checkImageCount(req.userId);
+    const status = await checkImageCount(req.userId);
+    User.update({ isProfileUpdated: status }, { where: { id: req.userId } })
     return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);
   }
+}
+
+exports.checkImageCount= (userId)=>{
+  return checkImageCount(userId)
 }
