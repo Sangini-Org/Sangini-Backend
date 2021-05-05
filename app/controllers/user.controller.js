@@ -10,26 +10,25 @@ const Op = db.Sequelize.Op;
 
 const checkProfile= async (userId) =>{
   try{
-    const fields = [ 'firstName', 'lastName', 'bio', 'state', 'city', 'gender', 'dob' ];
-    var status=false;  
-    var imageStatus=false;  
-    var profileStatus=true;
-    const user = await User.findOne({where: { id: userId },attributes: fields});
-    Object.keys(user.dataValues).forEach(key => {
-      if ((fields.includes(key)) && (user.dataValues[key] == null)) {
-         profileStatus = false;
-        }
-    });
+    const fields = ['firstName' , 'lastName', 'bio', 'state', 'city', 'gender', 'dob'];
+    var status=false;
+
     const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
     if(image){
      const count = await userImage.count({ where: { userId: userId, imgType : 'gallery'}});
       if (count>=2){ 
-      imageStatus=true;
+        const user = await User.findOne({where: { id: userId }, attributes: fields});
+        var userInfo=true;
+        Object.keys(user.dataValues).forEach(key => {
+          if ((fields.includes(key)) && (user.dataValues[key] == null)) {
+             userInfo = false;
+            }
+        });
+        if(userInfo){
+          status=true;
+        }      
       }
     }
-    if(profileStatus&&imageStatus){
-    status=true;
-    }    
     User.update({ isProfileUpdated: status }, { where: { id: userId } });
   }
   catch(err){
