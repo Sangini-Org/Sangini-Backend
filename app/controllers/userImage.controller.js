@@ -1,4 +1,3 @@
-const { checkDuplicateUsernameOrEmail } = require("../middleware/verifySignUp");
 const db = require("../models");
 const { cloudinary } = require('../utils/cloudinary');
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
