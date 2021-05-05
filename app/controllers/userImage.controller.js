@@ -7,20 +7,40 @@ const userImage = db.userImages;
 const User = db.users;
 const Op = db.Sequelize.Op;
 
-const checkImageCount= async (userId) =>{
-    var status = false;  
-    const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
-      if(image){
-        const images = await userImage.findAll({ where: { userId: userId, imgType : 'gallery'}});
-        let count = 0;
-        images.forEach((image)=>{
-          count++;  
+const checkProfile= async (userId) =>{
+    try{
+      const fields = [ 'firstName', 'lastName', 'bio', 'state', 'city', 'gender', 'dob' ];
+      var status=false;  
+      var imageStatus=false;  
+      var profileStatus=true;
+      const user = await User.findOne({
+        where: { id: userId },
+        attributes: { exclude: ['password'] }
         });
-        if (count>=2){ 
-         status=true;
-        }
+      Object.keys(user.dataValues).forEach(key => {
+        if ((fields.includes(key)) && (user.dataValues[key] == null)) {
+           profileStatus = false;
+          }
+      });
+      const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
+        if(image){
+          const images = await userImage.findAll({ where: { userId: userId, imgType : 'gallery'}});
+          let count = 0;
+          images.forEach((image)=>{
+            count++;  
+          });
+          if (count>=2){ 
+           imageStatus=true;
+          }
       }
-    return status;
+      if(profileStatus&&imageStatus){
+      status=true;
+      }    
+      User.update({ isProfileUpdated: status }, { where: { id: userId } });
+    }catch(err){
+      return sendBadRequest(res, 500, `${err.message}`)
+    }
+
 }
  
 exports.addUserImage = async (req, res) => {
@@ -44,8 +64,7 @@ exports.addUserImage = async (req, res) => {
           imgType: type,
           userId: req.userId
         }).then(async()=>{
-          const status = await checkImageCount(req.userId);
-          User.update({ isProfileUpdated: status }, { where: { id: req.userId } });
+           await checkProfile(req.userId);
         })
       }
     });
@@ -115,14 +134,13 @@ exports.deleteUserImage = async (req, res) => {
         }
       });  
     });
-    const status = await checkImageCount(req.userId);
-    User.update({ isProfileUpdated: status }, { where: { id: req.userId } })
+    await checkProfile(req.userId);
     return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);
   }
 }
 
-exports.checkImageCount= (userId)=>{
-  return checkImageCount(userId)
+exports.checkProfile= (userId)=>{
+  return checkProfile(userId)
 }
