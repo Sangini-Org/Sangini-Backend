@@ -1,12 +1,41 @@
 const db = require("../models");
 const User = db.users;
+const userImage = db.userImages;
 const UserTrack = db.usertracks;
 const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
-const { checkProfile } = require("../controllers/userImage.controller");
 
 const Op = db.Sequelize.Op;
+
+const checkProfile= async (userId) =>{
+  try{
+    const fields = [ 'firstName', 'lastName', 'bio', 'state', 'city', 'gender', 'dob' ];
+    var status=false;  
+    var imageStatus=false;  
+    var profileStatus=true;
+    const user = await User.findOne({where: { id: userId },attributes: fields});
+    Object.keys(user.dataValues).forEach(key => {
+      if ((fields.includes(key)) && (user.dataValues[key] == null)) {
+         profileStatus = false;
+        }
+    });
+    const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
+    if(image){
+     const count = await userImage.count({ where: { userId: userId, imgType : 'gallery'}});
+      if (count>=2){ 
+      imageStatus=true;
+      }
+    }
+    if(profileStatus&&imageStatus){
+    status=true;
+    }    
+    User.update({ isProfileUpdated: status }, { where: { id: userId } });
+  }
+  catch(err){
+    console.log("Error while checking profile update status "+err);
+  }
+}
 
 exports.getUserById = async (req, res) => {
   try {
@@ -94,3 +123,7 @@ exports.getPlaylist = async (req, res) => {
     return sendBadRequest(res, 500, 'Error while getting playlist ' + err.message)
   }
 };
+
+exports.checkProfile= (userId)=>{
+  return checkProfile(userId)
+}

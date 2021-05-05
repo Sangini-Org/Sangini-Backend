@@ -2,46 +2,10 @@ const { checkDuplicateUsernameOrEmail } = require("../middleware/verifySignUp");
 const db = require("../models");
 const { cloudinary } = require('../utils/cloudinary');
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
+const { checkProfile } = require("../controllers/user.controller");
 
 const userImage = db.userImages;
-const User = db.users;
 const Op = db.Sequelize.Op;
-
-const checkProfile= async (userId) =>{
-    try{
-      const fields = [ 'firstName', 'lastName', 'bio', 'state', 'city', 'gender', 'dob' ];
-      var status=false;  
-      var imageStatus=false;  
-      var profileStatus=true;
-      const user = await User.findOne({
-        where: { id: userId },
-        attributes: { exclude: ['password'] }
-        });
-      Object.keys(user.dataValues).forEach(key => {
-        if ((fields.includes(key)) && (user.dataValues[key] == null)) {
-           profileStatus = false;
-          }
-      });
-      const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
-        if(image){
-          const images = await userImage.findAll({ where: { userId: userId, imgType : 'gallery'}});
-          let count = 0;
-          images.forEach((image)=>{
-            count++;  
-          });
-          if (count>=2){ 
-           imageStatus=true;
-          }
-      }
-      if(profileStatus&&imageStatus){
-      status=true;
-      }    
-      User.update({ isProfileUpdated: status }, { where: { id: userId } });
-    }catch(err){
-      return sendBadRequest(res, 500, `${err.message}`)
-    }
-
-}
  
 exports.addUserImage = async (req, res) => {
   try {
@@ -132,15 +96,12 @@ exports.deleteUserImage = async (req, res) => {
           publicId: publicId,
           userId: req.userId,
         }
-      });  
+      }).then(async()=>{
+        await checkProfile(req.userId);
+      })  
     });
-    await checkProfile(req.userId);
     return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);
   }
-}
-
-exports.checkProfile= (userId)=>{
-  return checkProfile(userId)
 }
