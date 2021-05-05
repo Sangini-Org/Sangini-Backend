@@ -15,6 +15,42 @@ exports.createFriendRequest = async (req, res) => {
     }
 }
 
+exports.acceptFriendRequest = async (req, res) => {
+    try {
+        let request = await FriendRequest.update({
+            status: 2
+        }, {
+            where: {
+                senderId: req.body.id,
+                receiverId: req.userId
+            }
+        });
+
+        request = await FriendRequest.findOne({
+            where: {
+                senderId: req.userId,
+                receiverId: req.body.id
+            }
+        });
+
+        if(request) {
+            request.status = 2;
+
+            await request.save();
+        } else {
+            request = await FriendRequest.create({
+                senderId: req.userId,
+                receiverId: req.body.id,
+                status: 2
+            });
+        }
+
+        return sendJSONResponse(res, 200, "Friend request has been accepted", request);
+    } catch (err) {
+        return sendBadRequest(res, 404, "Request not found");
+    }
+}
+
 exports.updateFriendRequest = async (req, res) => {
     try {
         let request = await FriendRequest.update({
