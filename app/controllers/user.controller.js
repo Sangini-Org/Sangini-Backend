@@ -12,21 +12,17 @@ const checkProfile= async (userId) =>{
   try{
     const fields = ['firstName' , 'lastName', 'bio', 'state', 'city', 'gender', 'dob'];
     var status=false;
-
     const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
     if(image){
      const count = await userImage.count({ where: { userId: userId, imgType : 'gallery'}});
       if (count>=2){ 
+        status=true;
         const user = await User.findOne({where: { id: userId }, attributes: fields});
-        var userInfo=true;
         Object.keys(user.dataValues).forEach(key => {
           if ((fields.includes(key)) && (user.dataValues[key] == null)) {
-             userInfo = false;
+             status = false;
             }
-        });
-        if(userInfo){
-          status=true;
-        }      
+        });  
       }
     }
     User.update({ isProfileUpdated: status }, { where: { id: userId } });
