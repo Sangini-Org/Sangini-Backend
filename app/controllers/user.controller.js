@@ -4,7 +4,7 @@ const userImage = db.userImages;
 const UserTrack = db.usertracks;
 const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
-const { getPagingData, getPagination } = require("../utils/paginate.js");
+const { getPagingData, getPagination } = require("../utils/paginate");
 
 const Op = db.Sequelize.Op;
 
