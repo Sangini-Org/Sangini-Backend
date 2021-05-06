@@ -59,7 +59,7 @@ exports.editUser = async (req, res) => {
     await User.update(
       fields, { where: { id: req.userId } 
     })
-    await checkProfile(req.userId);
+     checkProfile(req.userId);
     return sendJSONResponse(res, 200, "Info updated successfully ");
   }
   catch (err) {
