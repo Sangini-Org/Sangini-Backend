@@ -53,7 +53,7 @@ describe("USERS API", () => {
         const { status, body } = await chai.request(server)
             .post('/api/auth/signin')
             .send({
-                username: 'user3',
+                userInput: 'user3',
                 password: 'user3-pw',
             });
         expect(status).to.eq(200);
@@ -68,7 +68,7 @@ describe("USERS API", () => {
         const { status, body } = await chai.request(server)
             .post('/api/auth/signin')
             .send({
-                username: 'user2',
+                userInput: 'user2',
                 password: 'pw',
             });
         expect(status).to.eq(404);
@@ -80,7 +80,7 @@ describe("USERS API", () => {
         const { status, body } = await chai.request(server)
             .post('/api/auth/signin')
             .send({
-                username: 'user3',
+                userInput: 'user3',
                 password: 'pw-wro',
             });
         expect(status).to.eq(401);

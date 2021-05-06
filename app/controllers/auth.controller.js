@@ -5,8 +5,10 @@ const User = db.users;
 // To send the email to the user
 const sendUserEmail = require("../middleware/sendUserEmail");
 const { sendJSONResponse, sendBadRequest, generateRandomString } = require("../utils/handle");
+const { checkEmail } = require("../utils/extraFucntions");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+
 
 exports.signup = async (req, res) => {
   // Save User to Database
@@ -32,10 +34,14 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
   try {
+    condition={};
+    if(checkEmail(req.body.userInput)) {
+      condition.email= req.body.userInput;
+    } else {
+      condition.username= req.body.userInput;
+    }
     const user = await User.findOne({
-      where: {
-        username: req.body.username,
-      },
+      where: condition
     })
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
