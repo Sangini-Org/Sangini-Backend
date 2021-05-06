@@ -32,10 +32,14 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
   try {
+    condition={};
+    if(/\S+@\S+\.\S+/.test(req.body.input)){
+      condition.email= req.body.input;
+    }else{
+      condition.username= req.body.input;
+    }
     const user = await User.findOne({
-      where: {
-        username: req.body.username,
-      },
+      where: condition
     })
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
