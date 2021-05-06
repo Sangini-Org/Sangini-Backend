@@ -1,25 +1,27 @@
 const db = require("../models");
 const { cloudinary } = require('../utils/cloudinary');
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
+const { checkProfile } = require("../controllers/user.controller");
 
 const userImage = db.userImages;
 const Op = db.Sequelize.Op;
-
+ 
 exports.addUserImage = async (req, res) => {
   try {
     const { type } = req.body;
     const file = req.files.image;
-    await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+    await cloudinary.uploader.upload(file.tempFilePath,async (err, result) => {
       if (err) {
         return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
       }
       else {
-         userImage.create({
+        await userImage.create({
           publicId: result.public_id,
           url: result.secure_url,
           imgType: type,
           userId: req.userId
-        });
+        })
+         checkProfile(req.userId);    
       }
     });
     return sendJSONResponse(res, 200, "Image uploaded successfully");
@@ -80,14 +82,15 @@ exports.updateUserImage = async (req, res) => {
 exports.deleteUserImage = async (req, res) => {
   try {
     const { publicId } = req.body;
-    await cloudinary.uploader.destroy( publicId,(result,err)=>{
-       userImage.destroy({
+    await cloudinary.uploader.destroy( publicId,async (result,err)=>{
+      await userImage.destroy({
         where: {
           publicId: publicId,
           userId: req.userId,
         }
-      });
-    });
+      })
+       checkProfile(req.userId);
+     });
     return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);

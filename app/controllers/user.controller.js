@@ -1,11 +1,37 @@
 const db = require("../models");
 const User = db.users;
+const userImage = db.userImages;
 const UserTrack = db.usertracks;
 const Track = db.tracks;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate.js");
 
 const Op = db.Sequelize.Op;
+
+const checkProfile= async (userId) =>{
+  try{
+    const fields = ['firstName' , 'lastName', 'bio', 'state', 'city', 'gender', 'dob'];
+    let status=false;
+    const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
+    if(image){
+     const count = await userImage.count({ where: { userId: userId, imgType : 'gallery'}});
+      if (count>=2){ 
+        status=true;
+        const user = await User.findOne({where: { id: userId }, attributes: fields});
+        console.log('line 21',user);
+        for(let field of fields){
+          if(user.dataValues[field] === null){
+           status=false;
+          }
+        }
+      }
+    }
+    User.update({ isProfileUpdated: status }, { where: { id: userId } });
+  }
+  catch(err){
+    console.log("Error while checking profile update status "+err);
+  }
+}
 
 exports.getUserById = async (req, res) => {
   try {
@@ -29,22 +55,12 @@ exports.getUserById = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   try {
-    const { firstName, lastName, bio, state, city, gender } = req.body;
-    await User.update({
-      firstName,
-      lastName,
-      bio,
-      state,
-      city,
-      gender
-    },
-      {
-        where: {
-          id: req.userId,
-        },
-      }
-    );
-    return sendJSONResponse(res, 200, "profile updated successfully")
+    const fields= { firstName, lastName, bio, state, city, gender ,dob} = req.body;    
+    await User.update(
+      fields, { where: { id: req.userId } 
+    })
+     checkProfile(req.userId);
+    return sendJSONResponse(res, 200, "Info updated successfully ");
   }
   catch (err) {
     return sendBadRequest(res, 500, `${err.message}`)
@@ -102,3 +118,7 @@ exports.getPlaylist = async (req, res) => {
     return sendBadRequest(res, 500, 'Error while getting playlist ' + err.message)
   }
 };
+
+exports.checkProfile= (userId)=>{
+  return checkProfile(userId)
+}
