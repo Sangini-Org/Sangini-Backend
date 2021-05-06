@@ -43,11 +43,11 @@ exports.getUserImage = async (req, res) => {
     if (images) {
       return sendJSONResponse(res, 200,"user images", images)
     } else {
-      return sendBadRequest(res, 404, "Users Not Found");
+      return sendBadRequest(res, 404, "User images Not Found");
     }
   }
   catch (err) {
-    return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)
+    return sendBadRequest(res, 500, 'Error while getting user images ' + err.message)
   }
 };
 
