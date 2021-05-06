@@ -35,7 +35,7 @@ exports.getUserImage = async (req, res) => {
   try {
     const { type } = req.query;
     let condition = {};
-    condition.userId = req.userId;
+    condition.userId = req.params.id;
     if(type){
       condition.imgType = type;
     }
@@ -45,11 +45,11 @@ exports.getUserImage = async (req, res) => {
     if (images) {
       return sendJSONResponse(res, 200,"user images", images)
     } else {
-      return sendBadRequest(res, 404, "Users Not Found");
+      return sendBadRequest(res, 404, "User images Not Found");
     }
   }
   catch (err) {
-    return sendBadRequest(res, 500, 'Error while getting users list ' + err.message)
+    return sendBadRequest(res, 500, 'Error while getting user images ' + err.message)
   }
 };
 
