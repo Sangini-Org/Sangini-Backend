@@ -8,6 +8,10 @@ const { sendJSONResponse, sendBadRequest, generateRandomString } = require("../u
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
+function checkEmail (email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
 exports.signup = async (req, res) => {
   // Save User to Database
   try {
@@ -33,7 +37,7 @@ exports.signup = async (req, res) => {
 exports.signin = async (req, res) => {
   try {
     condition={};
-    if(/\S+@\S+\.\S+/.test(req.body.input)){
+    if(checkEmail(req.body.input)){
       condition.email= req.body.input;
     }else{
       condition.username= req.body.input;
