@@ -10,25 +10,18 @@ exports.addUserImage = async (req, res) => {
   try {
     const { type } = req.body;
     const file = req.files.image;
-    if(type=='profile'){
-       const image = await userImage.findOne({ where: { userId: req.userId , imgType : 'profile'}});
-       if(image){
-        return sendJSONResponse(res, 400, "Can't create two profile image")   
-       }
-    } 
-    await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+    await cloudinary.uploader.upload(file.tempFilePath,async (err, result) => {
       if (err) {
         return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
       }
       else {
-         userImage.create({
+        await userImage.create({
           publicId: result.public_id,
           url: result.secure_url,
           imgType: type,
           userId: req.userId
-        }).then(async()=>{
-           await checkProfile(req.userId);
         })
+         checkProfile(req.userId);    
       }
     });
     return sendJSONResponse(res, 200, "Image uploaded successfully");
@@ -89,16 +82,15 @@ exports.updateUserImage = async (req, res) => {
 exports.deleteUserImage = async (req, res) => {
   try {
     const { publicId } = req.body;
-    await cloudinary.uploader.destroy( publicId,(result,err)=>{
-       userImage.destroy({
+    await cloudinary.uploader.destroy( publicId,async (result,err)=>{
+      await userImage.destroy({
         where: {
           publicId: publicId,
           userId: req.userId,
         }
-      }).then(async()=>{
-        await checkProfile(req.userId);
-      })  
-    });
+      })
+       checkProfile(req.userId);
+     });
     return sendJSONResponse(res, 200, "Image deleted");
   } catch (err) {
     return sendBadRequest(res, 404, err.message);

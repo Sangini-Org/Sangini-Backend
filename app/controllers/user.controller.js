@@ -11,18 +11,19 @@ const Op = db.Sequelize.Op;
 const checkProfile= async (userId) =>{
   try{
     const fields = ['firstName' , 'lastName', 'bio', 'state', 'city', 'gender', 'dob'];
-    var status=false;
+    let status=false;
     const image = await userImage.findOne({ where: { userId: userId, imgType : 'profile'}});
     if(image){
      const count = await userImage.count({ where: { userId: userId, imgType : 'gallery'}});
       if (count>=2){ 
         status=true;
         const user = await User.findOne({where: { id: userId }, attributes: fields});
-        Object.keys(user.dataValues).forEach(key => {
-          if ((fields.includes(key)) && (user.dataValues[key] == null)) {
-             status = false;
-            }
-        });  
+        console.log('line 21',user);
+        for(let field of fields){
+          if(user.dataValues[field] === null){
+           status=false;
+          }
+        }
       }
     }
     User.update({ isProfileUpdated: status }, { where: { id: userId } });
@@ -57,9 +58,8 @@ exports.editUser = async (req, res) => {
     const fields= { firstName, lastName, bio, state, city, gender ,dob} = req.body;    
     await User.update(
       fields, { where: { id: req.userId } 
-    }).then(async () => {
-        await checkProfile(req.userId);
-    }); 
+    })
+    await checkProfile(req.userId);
     return sendJSONResponse(res, 200, "Info updated successfully ");
   }
   catch (err) {
