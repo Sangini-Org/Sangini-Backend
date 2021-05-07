@@ -125,6 +125,27 @@ describe("USERS API", () => {
          expect(body.metadata.message).to.equal('Unauthorized!');
      })
 
+     it('Edit user profile', async () => {
+        const {status} = await chai.request(server)
+             .put('/api/user/edit')
+             .set('x-access-token',token)
+             .send({
+                firstName:'user3fname', 
+                lastName:'user3lname',
+             });
+         expect(status).to.eq(200);
+     })
+
+     it('Failed: Edit user profile (Invalid input)', async () => {
+        const {status} = await chai.request(server)
+             .put('/api/user/edit')
+             .set('x-access-token',token)
+             .send({
+                firstame:'user3fname' 
+             });
+         expect(status).to.eq(404);
+     })
+
     it('Get all users', async () => {
        const {status} = await chai.request(server)
             .get('/api/users')
