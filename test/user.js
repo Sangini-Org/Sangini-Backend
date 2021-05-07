@@ -60,8 +60,6 @@ describe("USERS API", () => {
         expect(status).to.eq(200);
         expect(body.data.user.username).to.equal('user3');
         expect(body.data.accessToken).to.exist;
-        userid=body.data.user.id;
-        console.log(userid);
     })
 
 
@@ -89,13 +87,11 @@ describe("USERS API", () => {
         expect(body.metadata.message).to.equal('Invalid Password!')
     })
 
-    it('Get user by Id', async () => {
+    it('Get all users', async () => {
 
         let res = await chai.request(server)
-            .get('/api/user/'+userid);
-        expect(res.status).to.eq(200);
-        console.log(userid);
-      
+            .get('/api/users');
+        expect(res.status).to.eq(200);     
     })
 
 })
