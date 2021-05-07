@@ -91,7 +91,7 @@ describe("USERS API", () => {
 
     it('Get user by Id', async () => {
         const {status} = await chai.request(server)
-             .get('/api/user/'+userid)
+             .get('/api/user/'+ userId)
              .set('x-access-token',token);
          expect(status).to.eq(200);     
      })
