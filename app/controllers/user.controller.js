@@ -85,7 +85,7 @@ exports.getAllUser = async (req, res) => {
 
     if (users) {
       const response = getPagingData(users, page, limit);
-      res.send(response);
+      return sendJSONResponse(res, 200, "Users", response)
     } else {
       return sendBadRequest(res, 404, "Users Not Found");
     }
