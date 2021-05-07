@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let expect = chai.expect;
 let server = require('../server');
 let should = chai.should();
-
+const fs = require('fs');
 
 chai.use(chaiHttp);
 
@@ -43,6 +43,20 @@ describe("USERS API", () => {
                 email: 'user3@example.com',
                 password: 'user3-pw',
                 username: 'user3'
+            });
+        expect(res.status).to.eq(200);
+        // expect(body.data.user.email).to.equal('user3@example.com')
+
+    })
+
+    it('Register a new user', async () => {
+
+        let res = await chai.request(server)
+            .post('/api/auth/signup')
+            .send({
+                email: 'user4@example.com',
+                password: 'user4-pw',
+                username: 'user4'
             });
         expect(res.status).to.eq(200);
         // expect(body.data.user.email).to.equal('user3@example.com')
@@ -132,6 +146,7 @@ describe("USERS API", () => {
              .send({
                 firstName:'user3fname', 
                 lastName:'user3lname',
+                city:'delhi'
              });
          expect(status).to.eq(200);
      })
@@ -151,6 +166,58 @@ describe("USERS API", () => {
             .get('/api/users')
             .set('x-access-token',token);
         expect(status).to.eq(200);     
+    })
+
+    it('Get all users by Query', async () => {
+        const {status} = await chai.request(server)
+             .get('/api/users?city=delhi')
+             .set('x-access-token',token);
+         expect(status).to.eq(200);     
+     })
+
+     it('Get all users (limit check)', async () => {
+        const {status, body} = await chai.request(server)
+             .get('/api/users?offlimit=2')
+             .set('x-access-token',token);
+         expect(status).to.eq(200);    
+         expect(body.data.users.length).to.eq(2);     
+     })
+     
+     describe("USERS IMAGE API", () => {
+        let public_id;
+        it('Upload Image', async () => {
+            const {status, body} = await chai.request(server)
+                 .post('/api/user/image/upload')
+                 .set('x-access-token',token)
+                 .field({type:'profile'})
+                 .attach('image', fs.readFileSync(`${__dirname}/testImage.png`), 'tests/testImage.png');
+             expect(status).to.eq(200);
+            public_id = body.data; 
+            })
+        it('Get Image by Id', async () => {
+            const {status} = await chai.request(server)
+            .get('/api/user/'+userId+'/image')
+            .set('x-access-token',token)
+            .send({type:'profile'})
+             expect(status).to.eq(200);
+            })   
+
+        it('Update Image', async () => {
+            const {status} = await chai.request(server)
+             .put('/api/user/image/update')
+             .set('x-access-token',token)
+             .field({publicId:public_id})
+             .attach('image', fs.readFileSync(`${__dirname}/testImage.png`), 'tests/testImage.png');
+              expect(status).to.eq(200);
+             })
+
+        it('Delete Image', async () => {
+                const {status} = await chai.request(server)
+                 .delete('/api/user/image/delete')
+                 .set('x-access-token',token)
+                 .send({publicId:public_id});
+                 expect(status).to.eq(200);
+                })
     })
 
 })

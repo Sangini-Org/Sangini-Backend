@@ -10,7 +10,7 @@ exports.addUserImage = async (req, res) => {
   try {
     const { type } = req.body;
     const file = req.files.image;
-    await cloudinary.uploader.upload(file.tempFilePath,async (err, result) => {
+    const image =await cloudinary.uploader.upload(file.tempFilePath,async (err, result) => {
       if (err) {
         return sendBadRequest(res, 404, 'Error while uploading file to cloudinary' + err);
       }
@@ -24,7 +24,7 @@ exports.addUserImage = async (req, res) => {
          checkProfile(req.userId);    
       }
     });
-    return sendJSONResponse(res, 200, "Image uploaded successfully");
+    return sendJSONResponse(res, 200, "Image uploaded successfully",image.public_id);
   }
   catch (err) {
     return sendBadRequest(res, 500, `${err.message}`)
