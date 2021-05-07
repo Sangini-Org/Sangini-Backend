@@ -110,6 +110,21 @@ describe("USERS API", () => {
          expect(status).to.eq(500);     
      })
 
+     it('Failed: Get user by Id (No token)', async () => {
+        const {status, body} = await chai.request(server)
+             .get('/api/user/'+userId);
+         expect(status).to.eq(403);
+         expect(body.metadata.message).to.equal('No token Provided');
+     })
+
+     it('Failed: Get user by Id (Invalid token)', async () => {
+        const {status, body} = await chai.request(server)
+             .get('/api/user/'+userId)
+             .set('x-access-token','thisIsInvalidToken')
+         expect(status).to.eq(401);
+         expect(body.metadata.message).to.equal('Unauthorized!');
+     })
+
     it('Get all users', async () => {
        const {status} = await chai.request(server)
             .get('/api/users')
