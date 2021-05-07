@@ -3,6 +3,7 @@ const { cloudinary } = require('../utils/cloudinary');
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { checkProfile } = require("../controllers/user.controller");
 
+const User = db.users;
 const userImage = db.userImages;
 const Op = db.Sequelize.Op;
  
@@ -39,13 +40,14 @@ exports.getUserImage = async (req, res) => {
     if(type){
       condition.imgType = type;
     }
+    const user = await User.findOne({where: {id:req.params.id?req.params.id:null}})
     const images = await userImage.findAll({
       where: condition
     })
-    if (images) {
+    if (user) {
       return sendJSONResponse(res, 200,"user images", images)
     } else {
-      return sendBadRequest(res, 404, "User images Not Found");
+      return sendBadRequest(res, 404, "User Not Found");
     }
   }
   catch (err) {
@@ -82,7 +84,8 @@ exports.updateUserImage = async (req, res) => {
 exports.deleteUserImage = async (req, res) => {
   try {
     const { publicId } = req.body;
-    await cloudinary.uploader.destroy( publicId,async (result,err)=>{
+    if(publicId){
+      await cloudinary.uploader.destroy( publicId,async (result,err)=>{
       await userImage.destroy({
         where: {
           publicId: publicId,
@@ -92,7 +95,10 @@ exports.deleteUserImage = async (req, res) => {
        checkProfile(req.userId);
      });
     return sendJSONResponse(res, 200, "Image deleted");
+  }else{
+    return sendBadRequest(res, 404, "publicId missing");
+  }
   } catch (err) {
-    return sendBadRequest(res, 404, err.message);
+    return sendBadRequest(res, 500, err.message);
   }
 }

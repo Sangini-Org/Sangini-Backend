@@ -194,13 +194,36 @@ describe("USERS API", () => {
              expect(status).to.eq(200);
             public_id = body.data; 
             })
+
+            it('Upload Image- Fail if nothing to upload', async () => {
+                const {status, body} = await chai.request(server)
+                     .post('/api/user/image/upload')
+                     .set('x-access-token',token)
+                 expect(status).to.eq(500);
+                })
+
         it('Get Image by Id', async () => {
             const {status} = await chai.request(server)
             .get('/api/user/'+userId+'/image')
             .set('x-access-token',token)
             .send({type:'profile'})
              expect(status).to.eq(200);
-            })   
+            })
+           
+            it('Get Image by Id -Fail if user not found', async () => {
+                const {status} = await chai.request(server)
+                .get('/api/user/00000000-0000-0000-0000-000000000000/image')
+                .set('x-access-token',token)
+                 expect(status).to.eq(404);
+                }) 
+
+            it('Get Image by Id -Fail if userId Invalid', async () => {
+                const {status} = await chai.request(server)
+                .get('/api/user/random/image')
+                .set('x-access-token',token)
+                 expect(status).to.eq(500);
+                }) 
+            
 
         it('Update Image', async () => {
             const {status} = await chai.request(server)
@@ -211,6 +234,13 @@ describe("USERS API", () => {
               expect(status).to.eq(200);
              })
 
+             it('Update Image -Fail if file is not provided', async () => {
+                const {status} = await chai.request(server)
+                 .put('/api/user/image/update')
+                 .set('x-access-token',token)
+                 .field({publicId:public_id});
+                  expect(status).to.eq(500);
+                 })
         it('Delete Image', async () => {
                 const {status} = await chai.request(server)
                  .delete('/api/user/image/delete')
@@ -218,6 +248,13 @@ describe("USERS API", () => {
                  .send({publicId:public_id});
                  expect(status).to.eq(200);
                 })
+
+            it('Delete Image -Fail if public_id not provided', async () => {
+              const {status} = await chai.request(server)
+              .delete('/api/user/image/delete')
+              .set('x-access-token',token)
+               expect(status).to.eq(404);
+                     })
     })
 
 })
