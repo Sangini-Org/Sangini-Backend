@@ -96,6 +96,20 @@ describe("USERS API", () => {
          expect(status).to.eq(200);     
      })
 
+     it('User Not Found: Get user by Id', async () => {
+        const {status} = await chai.request(server)
+             .get('/api/user/00000000-0000-0000-0000-000000000000')
+             .set('x-access-token',token);
+         expect(status).to.eq(404);     
+     })
+
+     it('Failed: Get user by Id (Invalid UUId)', async () => {
+        const {status} = await chai.request(server)
+             .get('/api/user/random')
+             .set('x-access-token',token);
+         expect(status).to.eq(500);     
+     })
+
     it('Get all users', async () => {
        const {status} = await chai.request(server)
             .get('/api/users')
