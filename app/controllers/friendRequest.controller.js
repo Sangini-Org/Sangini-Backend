@@ -25,10 +25,13 @@ exports.updateFriendRequest = async (req, res) => {
                 senderId: req.body.id
             }
         });
-
-        return sendJSONResponse(res, 200, "Friend request status altered", request);
+        if(request==1){
+        return sendJSONResponse(res, 200, "Friend request status altered", request);    
+        }else{
+        return sendBadRequest(res, 404, "Failed to alter Friend request status altered", request);    
+        }
     } catch (err) {
-        return sendBadRequest(res, 404, 'Error while updating friend request ' + err.message);
+        return sendBadRequest(res, 500, 'Error while updating friend request ' + err.message);
     }
 }
 
