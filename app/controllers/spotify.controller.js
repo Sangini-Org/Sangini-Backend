@@ -173,11 +173,13 @@ exports.spotifyPlaylistSync = async (req, res) => {
         };
 
         request.get(options, async function (error, response, body) {
-          console.log(body.items)
           let tracks = [];
+          let artists = new Set();
           for (let item of body.items) {
-            console.log(item.track.name)
-            console.log(item.track.id)
+            for (let artist of item.track.artists){
+              console.log(artist.name);
+              artists.add(artist.name)
+            }
             tracks.push(item.track.id)
             const track = await Track.findOne({
                   where:{
@@ -191,6 +193,8 @@ exports.spotifyPlaylistSync = async (req, res) => {
               })
             }
           }
+          console.log([...artists]);
+          console.log([...artists].length);
           const usertrack = await UserTrack.findOne({
             where: {
               userId: req.userId
@@ -200,13 +204,17 @@ exports.spotifyPlaylistSync = async (req, res) => {
           if (!usertrack) {
             await UserTrack.create({
               tracklist: tracks,
-              userId: req.userId
+              userId: req.userId,
+              artistList: [...artists],
+              artistCount: [...artists].length,
             })
           }
           else {
             await UserTrack.update(
               {
-                tracklist: tracks
+                tracklist: tracks,
+                artistList: [...artists],
+                artistCount: [...artists].length,
               },
               {
                 where: {
