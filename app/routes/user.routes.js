@@ -26,6 +26,7 @@ module.exports = function (app) {
   app.put('/api/user/update/friendrequest', [authJwt.verifyToken], friendrequestController.updateFriendRequest);
   app.delete('/api/user/delete/friendrequest', [authJwt.verifyToken], friendrequestController.deleteFriendRequest);
   app.get('/api/user/list/friendrequest',[authJwt.verifyToken],friendrequestController.listFriendRequest);
-  app.get('/api/users/recommend',[authJwt.verifyToken],userRecommendController.getMatchingUsers);
+  app.get('/api/users/recommendbytracks',[authJwt.verifyToken],userRecommendController.getMatchingUsersByTracks);
+  app.get('/api/users/recommendbyartists',[authJwt.verifyToken],userRecommendController.getMatchingUsersByArtists);
 };
  

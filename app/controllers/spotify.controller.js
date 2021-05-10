@@ -205,7 +205,7 @@ exports.spotifyPlaylistSync = async (req, res) => {
             await UserTrack.create({
               tracklist: tracks,
               userId: req.userId,
-              artistList: [...artists],
+              artistlist: [...artists],
               artistCount: [...artists].length,
             })
           }
@@ -213,7 +213,7 @@ exports.spotifyPlaylistSync = async (req, res) => {
             await UserTrack.update(
               {
                 tracklist: tracks,
-                artistList: [...artists],
+                artistlist: [...artists],
                 artistCount: [...artists].length,
               },
               {
