@@ -2,11 +2,13 @@ const db = require('../models')
 const UserTrack = db.usertracks;
 const { Op } = require('sequelize');
 const { sendJSONResponse, sendBadRequest } = require('../utils/handle');
+const { getPagination } = require("../utils/paginate");
 
 exports.getMatchingUsersByTracks = async (req, res) => {
 
     try {
         const { page, offlimit } = req.query;
+        const { limit, offset } = getPagination(page, offlimit); //default (1,5)
         const user = await UserTrack.findOne({
             where: {
                 userId: req.userId
@@ -17,15 +19,15 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         let finalRecommendUser = [];
         const currentUserTracks = user.dataValues.tracklist;
         for (let track of currentUserTracks) {
-            const matchingTracks = await UserTrack.findAll({
+            const matchingTracks = await UserTrack.findAndCountAll({
                 where: {
                     tracklist: {
                         [Op.contains]: [track]
                     }
-                }
+                },limit, offset
             })
-            console.log(matchingTracks);
-            for (let user of matchingTracks) {
+            console.log(matchingTracks.rows);
+            for (let user of matchingTracks.rows) {
                 if (recommendedUserFromOwn[user.dataValues.userId] !== undefined) {
                     recommendedUserFromOwn[user.dataValues.userId] += (100 / currentUserTracks.length);
                     recommendedUserFromOther[user.dataValues.userId] += (100 / user.dataValues.tracklist.length);
@@ -55,6 +57,8 @@ exports.getMatchingUsersByTracks = async (req, res) => {
 
 exports.getMatchingUsersByArtists = async (req, res) => {
     try {
+        const { page, offlimit } = req.query;
+        const { limit, offset } = getPagination(page, offlimit); //default (1,5)
         const user = await UserTrack.findOne({
             where: {
                 userId: req.userId
@@ -65,14 +69,14 @@ exports.getMatchingUsersByArtists = async (req, res) => {
         let finalRecommendUser = [];
         const currentUserArtistList = user.dataValues.artistlist;
         for (let artist of currentUserArtistList) {
-            const matchingArtists = await UserTrack.findAll({
+            const matchingArtists = await UserTrack.findAndCountAll({
                 where: {
                     artistlist: {
                         [Op.contains]: [artist]
                     }
-                }
+                },limit, offset
             })
-            for (let user of matchingArtists) {
+            for (let user of matchingArtists.rows) {
                 if (recommendedUserFromOwn[user.dataValues.userId] !== undefined) {
                     recommendedUserFromOwn[user.dataValues.userId] += (100 / currentUserArtistList.length);
                     recommendedUserFromOther[user.dataValues.userId] += (100 / user.dataValues.artistlist.length);
