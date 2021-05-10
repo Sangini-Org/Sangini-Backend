@@ -45,7 +45,7 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
         console.log(finalRecommendUser);
-        return sendJSONResponse(res, 200, 'recommended users', finalRecommendUser);
+        return sendJSONResponse(res, 200, 'recommended users by tracks', finalRecommendUser);
     }
     catch (err) {
         return sendBadRequest(res, 500, `${err.message}`)
@@ -92,7 +92,7 @@ exports.getMatchingUsersByArtists = async (req, res) => {
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
         console.log(finalRecommendUser);
-        return sendJSONResponse(res, 200, 'recommended users', finalRecommendUser);
+        return sendJSONResponse(res, 200, 'recommended users by artists', finalRecommendUser);
 
     } catch (err) {
         return sendBadRequest(res, 500, `${err.message}`);
