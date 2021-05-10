@@ -96,28 +96,46 @@ exports.getStatusById = async (req, res) => {
     }
   };
 
+  
 exports.likeStatus = async (req, res) => {
   try {
-    const { userId, like, dislike } = req.body;
+    const { userId } = req.body;
     const status = await Status.findOne({
       where: { userId: userId },
       attributes: ['like']
     });
-    let update;
-    if (like == 1) {
-      update = status.like + 1;
-    } else if (dislike == 1) {
-      update = status.like - 1;
-    }
+    let update = status.like + 1;
     let result = await Status.update({ like: update }, {
       where: { userId: req.userId }
     });
     if (result == 1) {
-      return sendJSONResponse(res, 200, "Status Responsed",);
+      return sendJSONResponse(res, 200, "Status Liked",);
     } else {
-      return sendBadRequest(res, 404, 'Status response failed ');
+      return sendBadRequest(res, 404, 'Liking status failed ');
     }
   } catch (err) {
-    return sendBadRequest(res, 500, 'Error while liking/disliking status' + err.message);
+    return sendBadRequest(res, 500, 'Error while liking status' + err.message);
+  }
+}
+
+
+exports.dislikeStatus = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const status = await Status.findOne({
+      where: { userId: userId },
+      attributes: ['like']
+    });
+    let update = status.like - 1;
+    let result = await Status.update({ like: update }, {
+      where: { userId: req.userId }
+    });
+    if (result == 1) {
+      return sendJSONResponse(res, 200, "Status Disliked",);
+    } else {
+      return sendBadRequest(res, 404, 'Disliking Status failed');
+    }
+  } catch (err) {
+    return sendBadRequest(res, 500, 'Error while disliking status' + err.message);
   }
 }
