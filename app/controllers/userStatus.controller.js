@@ -19,6 +19,7 @@ exports.updateStatus = async (req, res) => {
     try {
         const { trackId, emoji, songLine } = req.body;
         fields = { trackId, emoji, songLine};
+        fields.like = 0;
         let result = await Status.update(fields,{
                 where: { userId: req.userId }
             });
