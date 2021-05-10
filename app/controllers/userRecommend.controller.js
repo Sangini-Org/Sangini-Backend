@@ -19,18 +19,15 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         let recommendedUserFromOther = {};
         let finalRecommendUser = [];
         const currentUserTracks = user.dataValues.tracklist;
-        const users = await User.findAll({attributes:['id'],limit, offset});
-        for(let user of users){
+        const users = await User.findAndCountAll({attributes:['id'],limit, offset});
+        for(let user of users.rows){
+            recommendedUserFromOwn[user.id]=0;
+            recommendedUserFromOther[user.id]=0;
             const otherUserTracks = await UserTrack.findOne({where: {userId: user.id}} );
             for (let track of currentUserTracks) {
                 if(otherUserTracks.tracklist.includes(track)){
-                    if (recommendedUserFromOwn[user.id] !== undefined) {
-                        recommendedUserFromOwn[user.id] += (100 / currentUserTracks.length);
-                        recommendedUserFromOther[user.id] += (100 / otherUserTracks.tracklist.length);
-                    } else {
-                        recommendedUserFromOwn[user.id] = (100 / currentUserTracks.length);
-                        recommendedUserFromOther[user.id] = (100 / otherUserTracks.tracklist.length);
-                    }
+                recommendedUserFromOwn[user.id] += (100 / currentUserTracks.length);
+                recommendedUserFromOther[user.id] += (100 / otherUserTracks.tracklist.length); 
                 }
             }
         }
@@ -44,7 +41,13 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
         console.log(finalRecommendUser);
-        return sendJSONResponse(res, 200, 'recommended users by tracks', finalRecommendUser);
+        return sendJSONResponse(res, 200, 'recommended users by tracks', { 
+                'totalUsers': users.count,
+                'totalIteration': Math.ceil(users.count / limit),
+                'currentIteration': Math.ceil(offset / limit)+1,
+                'recommendUserFound':finalRecommendUser.length,
+                'finalRecommendUser':finalRecommendUser
+        });
     }
     catch (err) {
         return sendBadRequest(res, 500, `${err.message}`)
