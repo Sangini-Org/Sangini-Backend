@@ -1,11 +1,12 @@
 const db = require("../models");
 const Status = db.userStatus;
+const User = db.users;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate");
 
 exports.addStatus = async (req, res) => {
     try {
-        const fields = { trackId, emoji, songLine, like, dislike } = req.body;
+        const fields = { trackId, emoji, songLine } = req.body;
         fields.userId=req.userId;
             let status = await Status.create(fields);
         return sendJSONResponse(res, 200, "Status has been created", status);
@@ -16,8 +17,8 @@ exports.addStatus = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
     try {
-        const { trackId, emoji, songLine, like, dislike } = req.body;
-        fields = { trackId, emoji, songLine, like, dislike };
+        const { trackId, emoji, songLine } = req.body;
+        fields = { trackId, emoji, songLine};
         let result = await Status.update(fields,{
                 where: { userId: req.userId }
             });
@@ -45,10 +46,24 @@ exports.deleteStatus = async (req, res) => {
 
 exports.getAllStatus = async (req, res) => {
     try {
-      const { page, offlimit } = req.query;  
+      let userId;
+      const { page, offlimit, username } = req.query;  
       const { limit, offset } = getPagination(page, offlimit);
-      const allStatus = await Status.findAndCountAll({limit, offset})
-  
+      if(username){
+        const user= await User.findOne({where :
+         { username: username},attributes: ['id','city']
+        });
+        userId = user.id;
+      }
+      const condition= userId?{userId:userId}:null;
+      const allStatus = await Status.findAndCountAll({
+         where: condition
+        , 
+        order:[ 
+          ['like', 'DESC'],
+          ['updatedAt',  'DESC'], 
+        ],limit, offset});
+      
       if (allStatus) {
         const response = getPagingData(allStatus, page, limit);
         return sendJSONResponse(res, 200, "ALL Status found ",response);
@@ -57,7 +72,7 @@ exports.getAllStatus = async (req, res) => {
       }
     }
     catch (err) {
-      return sendBadRequest(res, 500, 'Error while getting all status' + err.message)
+      return sendBadRequest(res, 500, 'Error while getting all status ' + err.message)
     }
   };
 
@@ -80,3 +95,29 @@ exports.getStatusById = async (req, res) => {
       return sendBadRequest(res, 500, 'error while getting status by id '+err.message)
     }
   };
+
+exports.likeStatus = async (req, res) => {
+  try {
+    const { userId, like, dislike } = req.body;
+    const status = await Status.findOne({
+      where: { userId: userId },
+      attributes: ['like']
+    });
+    let update;
+    if (like == 1) {
+      update = status.like + 1;
+    } else if (dislike == 1) {
+      update = status.like - 1;
+    }
+    let result = await Status.update({ like: update }, {
+      where: { userId: req.userId }
+    });
+    if (result == 1) {
+      return sendJSONResponse(res, 200, "Status Responsed",);
+    } else {
+      return sendBadRequest(res, 404, 'Status response failed ');
+    }
+  } catch (err) {
+    return sendBadRequest(res, 500, 'Error while liking/disliking status' + err.message);
+  }
+}
