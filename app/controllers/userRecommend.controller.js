@@ -25,6 +25,8 @@ exports.getMatchingUsersByTracks = async (req, res) => {
             const users = await User.findAndCountAll({ limit, offset, attributes: ['id'] });
             totalUsers=users.count;
             for (let user of users.rows) {
+                if(user.id==req.userId){
+                continue;}
                 recommendedUserFromOwn[user.id] = 0;
                 recommendedUserFromOther[user.id] = 0;
                 const otherUserTracks = await UserTrack.findOne({ where: { userId: user.id } });
@@ -41,7 +43,7 @@ exports.getMatchingUsersByTracks = async (req, res) => {
                 }
             }        
             offset = Number(offset) + Number(limit);
-        }while ((finalRecommendUser.length <= 10) && (totalUsers > offset))
+        }while ((finalRecommendUser.length < 10) && (totalUsers > offset))
         
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
