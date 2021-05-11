@@ -19,12 +19,12 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         let recommendedUserFromOther = {};
         let finalRecommendUser = [];
         const currentUserTracks = user.dataValues.tracklist;
-        const totalUsers = await User.count();
+        let totalUsers;
 
-        while ((finalRecommendUser.length <= 10) && (totalUsers > offset)) {
-            const users = await User.findAll({ limit, offset, attributes: ['id'] });
-
-            for (let user of users) {
+        do {
+            const users = await User.findAndCountAll({ limit, offset, attributes: ['id'] });
+            totalUsers=users.count;
+            for (let user of users.rows) {
                 recommendedUserFromOwn[user.id] = 0;
                 recommendedUserFromOther[user.id] = 0;
                 const otherUserTracks = await UserTrack.findOne({ where: { userId: user.id } });
@@ -34,16 +34,14 @@ exports.getMatchingUsersByTracks = async (req, res) => {
                         recommendedUserFromOther[user.id] += (100 / otherUserTracks.tracklist.length);
                     }
                 }
-            }
-            Object.keys(recommendedUserFromOwn).map(user => {
-                if (recommendedUserFromOwn[user] > 35 && recommendedUserFromOther[user] > 35) {
+                if (recommendedUserFromOwn[user.id] > 35 && recommendedUserFromOther[user.id] > 35) {
                     let singleRecommendUser = {}
-                    singleRecommendUser[user] = recommendedUserFromOwn[user].toFixed(2);
+                    singleRecommendUser[user.id] = recommendedUserFromOwn[user.id].toFixed(2);
                     finalRecommendUser.push(singleRecommendUser);
                 }
-            })
+            }        
             offset = Number(offset) + Number(limit);
-        }
+        }while ((finalRecommendUser.length <= 10) && (totalUsers > offset))
         
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
