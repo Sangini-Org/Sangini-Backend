@@ -3,6 +3,7 @@ const Status = db.userStatus;
 const User = db.users;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate");
+const Op = db.Sequelize.Op;
 
 exports.addStatus = async (req, res) => {
     try {
@@ -47,16 +48,25 @@ exports.deleteStatus = async (req, res) => {
 
 exports.getAllStatus = async (req, res) => {
     try {
-      let userId;
+      let similarUsernameDetails = [];
       const { page, offlimit, username } = req.query;  
       const { limit, offset } = getPagination(page, offlimit);
       if(username){
-        const user= await User.findOne({where :
-         { username: username},attributes: ['id','city']
+        const usersDetails = await User.findAll({where :
+         { username: {
+          [Op.like]: `%${username}%`
+         }},attributes: ['id', 'username']
         });
-        userId = user.id;
+        console.log(usersDetails)
+        if (!usersDetails.length) {
+          return sendJSONResponse(res, 200, "user status not found by username", []);
+        }  
+        for (let user of usersDetails) {
+          similarUsernameDetails.push(user.dataValues.id)
+        }   
       }
-      const condition= userId?{userId:userId}:null;
+      
+      const condition= similarUsernameDetails.length? {userId: similarUsernameDetails} : null  ;
       const allStatus = await Status.findAndCountAll({
          where: condition
         , 
@@ -67,9 +77,9 @@ exports.getAllStatus = async (req, res) => {
       
       if (allStatus) {
         const response = getPagingData(allStatus, page, limit);
-        return sendJSONResponse(res, 200, "ALL Status found ",response);
+        return sendJSONResponse(res, 200, "all status found ",response);
       } else {
-        return sendBadRequest(res, 404, " Not Found");
+        return sendBadRequest(res, 404, " not found");
       }
     }
     catch (err) {
@@ -106,7 +116,7 @@ exports.likeStatus = async (req, res) => {
       attributes: ['like']
     });
     let result = await Status.update({ like: status.like + 1 }, {
-      where: { userId: req.userId }
+      where: { userId }
     });
     if (result == 1) {
       return sendJSONResponse(res, 200, "Status Liked",);
@@ -124,10 +134,10 @@ exports.dislikeStatus = async (req, res) => {
     const { userId } = req.body;
     const status = await Status.findOne({
       where: { userId: userId },
-      attributes: ['like']
+      attributes: ['dislike']
     });
-    let result = await Status.update({ like: status.like - 1 }, {
-      where: { userId: req.userId }
+    let result = await Status.update({ dislike: status.dislike + 1 }, {
+      where: { userId }
     });
     if (result == 1) {
       return sendJSONResponse(res, 200, "Status Disliked",);

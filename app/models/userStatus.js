@@ -14,6 +14,10 @@ module.exports = (sequelize, Sequelize) => {
     like: {
       type: DataTypes.INTEGER,
       defaultValue: 0
+    },
+    dislike: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     }
   });
 
