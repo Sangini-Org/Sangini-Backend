@@ -27,8 +27,9 @@ exports.getGoogleUserData = async (code) => {
         code,
         clientId: process.env.GOOGLE_ID,
         clientSecret: process.env.GOOGLE_SECRET,
-        redirectUrl: `${process.env.SERVER_URL}/${process.env.REDIRECT_URL}`
+        redirectUrl: `${process.env.SERVER_URL}/${process.env.REDIRECT_URI}`
     });
+    console.log(access_token);
   
     return axios.get(
         `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,

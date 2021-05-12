@@ -17,7 +17,7 @@ module.exports = function (app) {
   );
 
   app.get("/api/auth/google/url", controller.getGoogleAuthUrl);
-  app.post("/api/auth/google", controller.getGoogleUserData);
+  app.get("/api/auth/google", controller.getGoogleUserData);
   
   app.post("/api/auth/signin", controller.signin);
   app.get("/api/auth/verify/:uniqueString", controller.verifyUserEmail);

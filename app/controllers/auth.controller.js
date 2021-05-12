@@ -79,7 +79,7 @@ exports.signin = async (req, res) => {
 exports.getGoogleAuthUrl = async (req, res) => {
   const rootURL = "https://accounts.google.com/o/oauth2/v2/auth";
   const options = {
-    redirect_uri: `${process.env.SERVER_URL}/${process.env.REDIRECT_URL}`,
+    redirect_uri: `${process.env.SERVER_URL}/${process.env.REDIRECT_URI}`,
     client_id: process.env.GOOGLE_ID,
     access_type: "offline",
     response_type: "code",
@@ -104,21 +104,22 @@ exports.getGoogleUserData = async (req, res) => {
         email: googleUser.email
       }
     });
+    console.log(googleUser);
 
     // If user doesn't exist, create the user 
     // and assign a access_token to the user
     if(!user) {
-      if(!googleUser.isVerified)
-        return sendBadResponse(res, 400, "Invalid User");
+      if(!googleUser.verified_email)
+        return sendBadRequest(res, 400, "Invalid User");
 
       const newUser = await User.create({
         email: googleUser.email,
         username: googleUser.user,
-        isVerified: true,
+        isVerifified: true,
         password: ''
       });
-
-      let token = jwt.sign({ id: user.id }, config.secret, {
+      console.log(newUser);
+      let token = jwt.sign({ id: newUser.dataValues.id }, config.secret, {
         expiresIn: 86400, // 24 hours
       });
 
@@ -129,7 +130,7 @@ exports.getGoogleUserData = async (req, res) => {
     }
 
     if(user.password) {
-      return sendBadResponse(res, 404, "User has already registered.");
+      return sendBadRequest(res, 404, "User has already registered.");
     }
 
     const token = jwt.sign({ id: user.id }, config.secret, {
@@ -142,7 +143,7 @@ exports.getGoogleUserData = async (req, res) => {
     });
   
   } catch (err) {
-    return sendBadResponse(res, 400, err.message);
+    return sendBadRequest(res, 400, err.message);
   }
 }
 
