@@ -105,7 +105,7 @@ exports.likeStatus = async (req, res) => {
       where: { userId: userId },
       attributes: ['like']
     });
-    let result = await Status.update({ like: update }, {
+    let result = await Status.update({ like: status.like + 1 }, {
       where: { userId: req.userId }
     });
     if (result == 1) {
