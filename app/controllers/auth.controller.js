@@ -9,6 +9,11 @@ const { checkEmail } = require("../utils/extraFucntions");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
+const querystring = require("querystring");
+const axios = require("axios");
+
+const { getGoogleUserData } = require("../utils/googleAuth");
+
 
 exports.signup = async (req, res) => {
   // Save User to Database
@@ -69,6 +74,77 @@ exports.signin = async (req, res) => {
     return sendBadRequest(res, 500, `${err.message}`)
   }
 };
+
+// controller to get Google's Authentication Url
+exports.getGoogleAuthUrl = async (req, res) => {
+  const rootURL = "https://accounts.google.com/o/oauth2/v2/auth";
+  const options = {
+    redirect_uri: `${process.env.SERVER_URL}/${process.env.REDIRECT_URL}`,
+    client_id: process.env.GOOGLE_ID,
+    access_type: "offline",
+    response_type: "code",
+    prompt: "consent",
+    scope: [
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+    ].join(" ")
+  };
+
+  return sendJSONResponse(res, 200, "Send user to the url", `${rootURL}?${querystring.stringify(options)}`);
+}
+
+exports.getGoogleUserData = async (req, res) => {
+  try {
+    const code = req.query.code;
+
+    const googleUser = await getGoogleUserData(code);
+
+    const user = await User.findOne({
+      where: {
+        email: googleUser.email
+      }
+    });
+
+    // If user doesn't exist, create the user 
+    // and assign a access_token to the user
+    if(!user) {
+      if(!googleUser.isVerified)
+        return sendBadResponse(res, 400, "Invalid User");
+
+      const newUser = await User.create({
+        email: googleUser.email,
+        username: googleUser.user,
+        isVerified: true,
+        password: ''
+      });
+
+      let token = jwt.sign({ id: user.id }, config.secret, {
+        expiresIn: 86400, // 24 hours
+      });
+
+      return sendJSONResponse(res, 200, "User created", {
+        user: newUser,
+        access_token: token
+      });
+    }
+
+    if(user.password) {
+      return sendBadResponse(res, 404, "User has already registered.");
+    }
+
+    const token = jwt.sign({ id: user.id }, config.secret, {
+      expiresIn: 86400, // 24 hours
+    });
+
+    return sendJSONResponse(res, 200, "User logged-in", {
+      user,
+      access_token: token
+    });
+  
+  } catch (err) {
+    return sendBadResponse(res, 400, err.message);
+  }
+}
 
 exports.verifyUserEmail = async (req, res) => {
   try {
