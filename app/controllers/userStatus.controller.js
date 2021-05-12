@@ -128,7 +128,7 @@ exports.dislikeStatus = async (req, res) => {
       attributes: ['like']
     });
     let update = status.like - 1;
-    let result = await Status.update({ like: update }, {
+    let result = await Status.update({ like: status.like - 1 }, {
       where: { userId: req.userId }
     });
     if (result == 1) {
