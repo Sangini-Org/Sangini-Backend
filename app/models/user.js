@@ -37,7 +37,7 @@ module.exports = (sequelize, Sequelize) => {
     dob: {
       type: Sequelize.DATE,
     },
-    isVerfified: {
+    isVerified: {
       type: Sequelize.BOOLEAN,
       defaultValue: false
     },

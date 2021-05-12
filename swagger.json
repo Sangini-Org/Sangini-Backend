@@ -36,6 +36,82 @@
     }
   ],
   "paths": {
+    "/auth/verify/{uniqueString}":{
+      "get":{
+        "tags": [
+          "Authentication"
+        ],
+        "summary":"Verify User Email",
+        "description":"Verify user using the uniqueString",
+        "parameters":[
+          {
+            "name": "uniqueString",
+            "in": "path",
+            "description": "Unique string to verify email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email verified",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "400":{
+            "description": "Invalid ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/resendVerificationEmail/{uniqueString}":{
+      "get":{
+        "tags": [
+          "Authentication"
+        ],
+        "summary":"Resend Verification Email",
+        "description":"Resend Verification Email",
+        "parameters":[
+          {
+            "name": "uniqueString",
+            "in": "path",
+            "description": "Unique string of existing user to resendverification email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "400":{
+            "description": "Invalid ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/signin":{
       "post": {
         "tags": [
@@ -327,12 +403,12 @@
               "schema": {
                 "type":"object",
                 "properties": {
-                  "imageType": {
+                  "type": {
                     "type": "string",
                     "enum":["profile","gallery"],
                     "description": "picture to be used as"
                   },
-                  "file": {
+                  "image": {
                     "type": "string",
                     "description": "file to upload",
                     "format": "binary"
@@ -382,10 +458,10 @@
                 "type":"object",
                 "properties": {
                   "publicId": {
-                    "$ref":"#/components/schemas/UserImages",
+                    "type":"string",
                     "description": "Id of Image to be updated"
                   },
-                  "file": {
+                  "image": {
                     "type": "string",
                     "description": "file to upload",
                     "format": "binary"
@@ -545,7 +621,7 @@
             "type": "string",
             "format": "date"
           },
-          "isVerfified": {
+          "isVerified": {
             "type": "boolean",
             "default": "false"
           },
