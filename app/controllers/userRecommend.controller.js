@@ -119,7 +119,6 @@ exports.getMatchingUsers = async (req, res) => {
                 userId: req.userId
             }
         })
-        let MatchingFeilds = ['track', 'artist'];
         let recommendUserBytrack = {};
         let recommendUserByartist = {};
         let finalRecommendUser = [];
@@ -133,27 +132,37 @@ exports.getMatchingUsers = async (req, res) => {
                 userskip++;
                 if (user.id == req.userId) { continue; }
                 const otherUser = await UserTrack.findOne({ where: { userId: user.id } });
-                for (let i = 0; i < 2; i++) {
-                    let count = 0;
-                    for (let field of eval(`currentUser.${MatchingFeilds[i]}list`)) {
-                        if (eval(`otherUser.${MatchingFeilds[i]}list`).includes(field)) {
-                            count++;
-                        }
-                    }
-                    let MatchPercentageFromOwn = count * (100 / eval(`currentUser.${MatchingFeilds[i]}list`).length);
-                    let MatchPercentageFromOther = count * (100 / eval(`otherUser.${MatchingFeilds[i]}list`).length);
-                    if (MatchPercentageFromOwn >= 25 && MatchPercentageFromOther >= 25) {
-                        eval(`recommendUserBy${MatchingFeilds[i]}`)[user.id] = MatchPercentageFromOwn.toFixed(2);
+                let count = 0;
+                for (let field of currentUser.tracklist) {
+                    if (otherUser.tracklist.includes(field)) {
+                        count++;
                     }
                 }
-                let percentage;
-                if (recommendUserBytrack[user.id] != undefined) {
-                    if (recommendUserByartist[user.id] != undefined) {
-                        percentage = (Number(recommendUserBytrack[user.id]) + Number(recommendUserBytrack[user.id])) / 2;
-                    } else {
-                        percentage = recommendUserBytrack[user.id];
+                let MatchPercentageFromOwn = count * (100 / currentUser.tracklist.length);
+                let MatchPercentageFromOther = count * (100 / otherUser.tracklist.length);
+                if (MatchPercentageFromOwn >= 25 && MatchPercentageFromOther >= 25) {
+                    recommendUserBytrack[user.id] = MatchPercentageFromOwn.toFixed(2);
+                }
+
+                count = 0;
+                for (let field of currentUser.artistlist) {
+                    if (otherUser.artistlist.includes(field)) {
+                        count++;
                     }
-                } else if (recommendUserByartist[user.id] != undefined) {
+                }
+                MatchPercentageFromOwn = count * (100 / currentUser.artistlist.length);
+                MatchPercentageFromOther = count * (100 / otherUser.artistlist.length);
+                if (MatchPercentageFromOwn >= 25 && MatchPercentageFromOther >= 25) {
+                    recommendUserByartist[user.id] = MatchPercentageFromOwn.toFixed(2);
+                }
+
+                let percentage;
+                if ((recommendUserBytrack[user.id] != undefined) && (recommendUserByartist[user.id] != undefined)) {
+                    percentage = (Number(recommendUserBytrack[user.id]) + Number(recommendUserBytrack[user.id])) / 2;
+                } else if ((recommendUserBytrack[user.id] != undefined)) {
+                    percentage = recommendUserBytrack[user.id];
+                }
+                else if ((recommendUserByartist[user.id] != undefined)) {
                     percentage = recommendUserByartist[user.id];
                 }
                 if (percentage) {
@@ -164,7 +173,6 @@ exports.getMatchingUsers = async (req, res) => {
                 }
             }
             offset = Number(offset) + Number(userskip);
-            console.log('length', finalRecommendUser.length)
         } while ((finalRecommendUser.length < max) && (totalUsers > offset))
 
         console.log(recommendUserBytrack);
