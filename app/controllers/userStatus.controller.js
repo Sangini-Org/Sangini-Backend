@@ -20,7 +20,7 @@ exports.updateStatus = async (req, res) => {
     try {
         const { trackId, emoji, songLine } = req.body;
         fields = { trackId, emoji, songLine};
-        fields.like = 0;
+        fields.like = [];
         let result = await Status.update(fields,{
                 where: { userId: req.userId }
             });
@@ -62,10 +62,11 @@ exports.getAllStatus = async (req, res) => {
           return sendJSONResponse(res, 200, "user status not found by username", []);
         }  
         for (let user of usersDetails) {
+          if(user.dataValues.id==req.id){continue;}
           similarUsernameDetails.push(user.dataValues.id)
         }   
       }
-      
+      console.log(similarUsernameDetails)
       const condition= similarUsernameDetails.length? {userId: similarUsernameDetails} : null  ;
       const allStatus = await Status.findAndCountAll({
          where: condition
@@ -115,19 +116,26 @@ exports.likeStatus = async (req, res) => {
       where: { userId: userId },
       attributes: ['like']
     });
-    let result = await Status.update({ like: status.like + 1 }, {
-      where: { userId }
-    });
-    if (result == 1) {
-      return sendJSONResponse(res, 200, "Status Liked",);
-    } else {
-      return sendBadRequest(res, 404, 'Liking status failed ');
+    if(status){
+      if (status.like.includes(req.userId)) {
+        let index = status.like.indexOf(req.userId);
+        await Status.update({ like: status.like.splice(index, 1) }, {
+          where: { userId }
+        });
+        return sendJSONResponse(res, 200, "Status Unliked",);
+      } else {
+        await Status.update({ like: status.like.push(req.userId) }, {
+          where: { userId }
+        });
+        return sendJSONResponse(res, 200, "Status Liked",)
+      }
     }
+    return sendBadRequest(res, 404, 'Status Not found');
   } catch (err) {
     return sendBadRequest(res, 500, 'Error while liking status' + err.message);
   }
 }
-
+ 
 
 exports.dislikeStatus = async (req, res) => {
   try {

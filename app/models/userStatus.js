@@ -2,6 +2,11 @@ const { Sequelize, DataTypes, Model } = require("sequelize");
 
 module.exports = (sequelize, Sequelize) => {
   const userStatus  = sequelize.define("userStatus", {  
+    statusId: {
+      type: Sequelize.STRING,
+      required: true,
+      primaryKey: true
+    },
     trackId: {
       type: Sequelize.STRING,
     },
@@ -12,12 +17,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     like: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0
+      type:Sequelize.ARRAY(Sequelize.STRING)
     },
     dislike: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0
+      type:Sequelize.ARRAY(Sequelize.STRING)
     }
   });
 
