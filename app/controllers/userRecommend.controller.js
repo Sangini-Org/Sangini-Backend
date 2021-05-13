@@ -25,6 +25,7 @@ exports.getMatchingUsersByTracks = async (req, res) => {
             totalUsers = users.count;
             let userskip = 0;
             for (let user of users.rows) {
+                userskip++;
                 if (user.id == req.userId) {
                     continue;
                 }
@@ -43,13 +44,12 @@ exports.getMatchingUsersByTracks = async (req, res) => {
                     singleRecommendUser[user.id] = recommendedUserFromOwn[user.id].toFixed(2);
                     finalRecommendUser.push(singleRecommendUser);
                 }
-                userskip++;
                 if (finalRecommendUser.length == max) {
                     break;
                 }
             }
             offset = Number(offset) + Number(userskip);
-        } while ((finalRecommendUser.length < recommend) && (totalUsers > offset))
+        } while ((finalRecommendUser.length < max) && (totalUsers > offset))
 
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
