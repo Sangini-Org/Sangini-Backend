@@ -5,11 +5,11 @@ const { Op } = require('sequelize');
 const { sendJSONResponse, sendBadRequest } = require('../utils/handle');
 
 exports.getMatchingUsersByTracks = async (req, res) => {
-
     try {
-        const { skip, offlimit } = req.query;
+        const { skip, offlimit, recommend } = req.query;
         let offset = skip ? skip : 0;
         let limit = offlimit ? offlimit : 5;
+        let max= recommend?recommend:3;
         const user = await UserTrack.findOne({
             where: {
                 userId: req.userId
@@ -20,31 +20,36 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         let finalRecommendUser = [];
         const currentUserTracks = user.dataValues.tracklist;
         let totalUsers;
-
         do {
             const users = await User.findAndCountAll({ limit, offset, attributes: ['id'] });
             totalUsers = users.count;
+            let userskip = 0;
             for (let user of users.rows) {
                 if (user.id == req.userId) {
                     continue;
                 }
-                recommendedUserFromOwn[user.id] = 0;
-                recommendedUserFromOther[user.id] = 0;
                 const otherUserTracks = await UserTrack.findOne({ where: { userId: user.id } });
+                let count=0;
                 for (let track of currentUserTracks) {
                     if (otherUserTracks.tracklist.includes(track)) {
-                        recommendedUserFromOwn[user.id] += (100 / currentUserTracks.length);
-                        recommendedUserFromOther[user.id] += (100 / otherUserTracks.tracklist.length);
+                        count++;
                     }
                 }
-                if (recommendedUserFromOwn[user.id] > 35 && recommendedUserFromOther[user.id] > 35) {
+                recommendedUserFromOwn[user.id] = count*(100 / currentUserTracks.length);
+                recommendedUserFromOther[user.id] = count*(100 / otherUserTracks.tracklist.length);
+
+                if (recommendedUserFromOwn[user.id] > 5 && recommendedUserFromOther[user.id] > 5) {
                     let singleRecommendUser = {}
                     singleRecommendUser[user.id] = recommendedUserFromOwn[user.id].toFixed(2);
                     finalRecommendUser.push(singleRecommendUser);
                 }
+                userskip++;
+                if (finalRecommendUser.length == max) {
+                    break;
+                }
             }
-            offset = Number(offset) + Number(limit);
-        } while ((finalRecommendUser.length < 10) && (totalUsers > offset))
+            offset = Number(offset) + Number(userskip);
+        } while ((finalRecommendUser.length < recommend) && (totalUsers > offset))
 
         console.log(recommendedUserFromOwn);
         console.log(recommendedUserFromOther);
