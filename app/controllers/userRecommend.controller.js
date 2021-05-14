@@ -30,6 +30,7 @@ exports.getMatchingUsersByTracks = async (req, res) => {
                     continue;
                 }
                 const otherUserTracks = await UserTrack.findOne({ where: { userId: user.id } });
+                if(otherUserTracks==null){continue; }
                 let count=0;
                 for (let track of currentUserTracks) {
                     if (otherUserTracks.tracklist.includes(track)) {
