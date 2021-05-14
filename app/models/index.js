@@ -36,6 +36,7 @@ db.users.hasMany(db.userImages);
 db.userImages.belongsTo(db.users);
 db.users.hasOne(db.usertracks);
 db.usertracks.belongsTo(db.users);
-
+db.users.hasOne(db.userStatus);
+db.userStatus.belongsTo(db.users);
 
 module.exports = db;
