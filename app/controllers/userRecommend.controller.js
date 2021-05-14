@@ -19,6 +19,9 @@ exports.getMatchingUsersByTracks = async (req, res) => {
         let recommendedUserFromOther = {};
         let finalRecommendUser = [];
         const currentUserTracks = user.dataValues.tracklist;
+        if(currentUserTracks===null||currentUserTracks.length==0){
+            return sendBadRequest(res, 404, 'No tracks to match from');
+        }
         let totalUsers;
         do {
             const users = await User.findAndCountAll({ limit, offset, attributes: ['id'] });
