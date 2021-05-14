@@ -9,7 +9,8 @@ exports.addStatus = async (req, res) => {
     try {
         const fields = { trackId, emoji, songLine } = req.body;
         fields.userId=req.userId;
-            let status = await Status.create(fields);
+        fields.like=[];
+        let status = await Status.create(fields);
         return sendJSONResponse(res, 200, "Status has been created", status);
     } catch (err) {
         return sendBadRequest(res, 404, 'Error while creating Status ' + err.message);
@@ -117,15 +118,17 @@ exports.likeStatus = async (req, res) => {
       attributes: ['like']
     });
     if(status){
+      console.log(status.like)
       if (status.like.includes(req.userId)) {
         let index = status.like.indexOf(req.userId);
-        await Status.update({ like: status.like.splice(index, 1) }, {
+        status.like.splice(index, 1);
+        await Status.update({ like: status.like }, {
           where: { userId }
         });
         return sendJSONResponse(res, 200, "Status Unliked",);
       } else {
-        await Status.update({ like: status.like.push(req.userId) }, {
-          where: { userId }
+        await Status.update({ like: status.like.concat([req.userId]) }, {
+          where: { userId:userId }
         });
         return sendJSONResponse(res, 200, "Status Liked",)
       }
@@ -133,26 +136,5 @@ exports.likeStatus = async (req, res) => {
     return sendBadRequest(res, 404, 'Status Not found');
   } catch (err) {
     return sendBadRequest(res, 500, 'Error while liking status' + err.message);
-  }
-}
- 
-
-exports.dislikeStatus = async (req, res) => {
-  try {
-    const { userId } = req.body;
-    const status = await Status.findOne({
-      where: { userId: userId },
-      attributes: ['dislike']
-    });
-    let result = await Status.update({ dislike: status.dislike + 1 }, {
-      where: { userId }
-    });
-    if (result == 1) {
-      return sendJSONResponse(res, 200, "Status Disliked",);
-    } else {
-      return sendBadRequest(res, 404, 'Disliking Status failed');
-    }
-  } catch (err) {
-    return sendBadRequest(res, 500, 'Error while disliking status' + err.message);
   }
 }

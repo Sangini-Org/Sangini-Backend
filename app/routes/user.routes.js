@@ -30,7 +30,6 @@ module.exports = function (app) {
   app.post('/api/user/create/status', [authJwt.verifyToken], statusController.addStatus);
   app.put('/api/user/update/status', [authJwt.verifyToken], statusController.updateStatus);
   app.put('/api/user/like/status', [authJwt.verifyToken], statusController.likeStatus);
-  app.put('/api/user/dislike/status', [authJwt.verifyToken], statusController.dislikeStatus);
   app.delete('/api/user/delete/status', [authJwt.verifyToken], statusController.deleteStatus);
   app.get('/api/user/status/all',[authJwt.verifyToken], statusController.getAllStatus);
 };
