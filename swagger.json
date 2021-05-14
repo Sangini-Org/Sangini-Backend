@@ -32,7 +32,11 @@
     },
     {
       "name": "userImages",
-      "description": "Operations about user"      
+      "description": "Operations about Images"      
+    },
+    {
+      "name":"Friend Request",
+      "description":"Operation related to friend request"
     }
   ],
   "paths": {
@@ -212,6 +216,57 @@
               "type": "string"
             },
             "required": "true"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description":"Page you want to See",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offlimit",
+            "description":"Number of Results in a page",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "firstName",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gender",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -234,27 +289,7 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "User Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
+          }          
         }
       }
     },
@@ -390,7 +425,7 @@
           {
             "in": "header",
             "name": "x-access-token",
-            "description": "Access token of user to be updated",
+            "description": "Access token of user whose image to be uploaded",
             "required": true,
             "schema": {
               "type": "string"
@@ -494,7 +529,7 @@
           {
             "in": "header",
             "name": "x-access-token",
-            "description": "Access token of user to be updated",
+            "description": "Access token of user whose image to be deleted",
             "required": true,
             "schema": {
               "type": "string"
@@ -570,8 +605,226 @@
           }
         }
       }
-    }
-  },
+    },
+    "/user/create/friendrequest":{
+      "post": {
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Sends Friend Request",
+        "operationId": "createFriendRequest",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user who want to send request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of user to be made friend",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "id":{
+                    "type":"string",
+                    "example":"9af37349-2573-4f7d-83d4-55745b866c08"
+                  }
+                }              
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Friend Request Sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendRequests"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/update/friendrequest":{
+      "put":{
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Update Friend Request Status",
+        "operationId": "updateFriendRequestStatus",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user who want to Accept/Reject/Block Request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of user whose request to be Accepted/Rejected/Blocked and Request Status ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "id":{
+                    "type":"string",
+                    "description":"senderId",
+                    "example":"75a43564-e5c3-499c-8858-830342d1ed47"
+                  },
+                  "status":{
+                    "type":"integer",
+                    "format": "int64",
+                    "description":"Status states:\n  1 : `pending`\n  2 : `Accepted`\n  3 : `Rejected`\n  4 : `blocked`\n",               
+                    "minimum": 2,
+                    "maximum": 4,
+                    "default": 2                    
+                  }
+                }              
+              }
+            }
+          }
+        },
+        "responses":{
+          "200": {
+            "description": "Friend Request Status Altered",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "404": {
+            "description": "Error while updating Friend Request Status ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/delete/friendrequest":{
+      "delete":{
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Delete Friend Request Status",
+        "operationId": "deleteFriendRequestStatus",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user who want to delete Request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of user whose request to be Deleted ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "id":{
+                    "type":"string",
+                    "description":"senderId",
+                    "example":"75a43564-e5c3-499c-8858-830342d1ed47"
+                  }                
+                }              
+              }
+            }
+          }
+        },
+        "responses":{
+          "200": {
+            "description": "Friend Request Deleted",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "404": {
+            "description": "Error while Deleting Friend Request Status ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/list/friendrequest":{
+      "get":{
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Get FriendRequest list with Given Status",
+        "operationId": "getFriendList",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description":"Access token of user to see FriendRequestList",
+            "schema": {
+              "type": "string"
+            },
+            "required": "true"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description":"Status of Friend Request",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ], 
+        "requestBody": {
+          "description":" ",
+          "content": {
+            
+          }
+        },  
+        "responses":{
+          "200": {
+            "description": "Success",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    }    
+  },  
   "components": {
     "schemas": {
       "User": {
