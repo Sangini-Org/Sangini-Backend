@@ -22,6 +22,7 @@ exports.updateStatus = async (req, res) => {
         const { trackId, emoji, songLine } = req.body;
         fields = { trackId, emoji, songLine};
         fields.like = [];
+        fields.likeCount = 0;
         let result = await Status.update(fields,{
                 where: { userId: req.userId }
             });
@@ -58,7 +59,6 @@ exports.getAllStatus = async (req, res) => {
           [Op.like]: `%${username}%`
          }},attributes: ['id', 'username']
         });
-        console.log(usersDetails)
         if (!usersDetails.length) {
           return sendJSONResponse(res, 200, "user status not found by username", []);
         }  
@@ -67,7 +67,6 @@ exports.getAllStatus = async (req, res) => {
           similarUsernameDetails.push(user.dataValues.id)
         }   
       }
-      console.log(similarUsernameDetails)
       const condition= similarUsernameDetails.length? {userId: similarUsernameDetails} : null  ;
       const allStatus = await Status.findAndCountAll({
          where: condition
@@ -76,7 +75,6 @@ exports.getAllStatus = async (req, res) => {
           ['like', 'DESC'],
           ['updatedAt',  'DESC'], 
         ],limit, offset});
-      
       if (allStatus) {
         const response = getPagingData(allStatus, page, limit);
         return sendJSONResponse(res, 200, "all status found ",response);
@@ -115,19 +113,22 @@ exports.likeStatus = async (req, res) => {
     const { userId } = req.body;
     const status = await Status.findOne({
       where: { userId: userId },
-      attributes: ['like']
+      attributes: ['like','likeCount']
     });
     if(status){
-      console.log(status.like)
-      if (status.like.includes(req.userId)) {
-        let index = status.like.indexOf(req.userId);
-        status.like.splice(index, 1);
-        await Status.update({ like: status.like }, {
+       if (status.like.includes(req.userId)) {
+          await Status.update({ 
+          like: status.like.filter(userId => userId != req.userId),
+          likeCount: status.likeCount - 1
+         }, {
           where: { userId }
         });
         return sendJSONResponse(res, 200, "Status Unliked",);
       } else {
-        await Status.update({ like: status.like.concat([req.userId]) }, {
+        await Status.update({ 
+          like: status.like.concat([req.userId]),
+          likeCount: status.likeCount + 1
+         }, {
           where: { userId:userId }
         });
         return sendJSONResponse(res, 200, "Status Liked",)

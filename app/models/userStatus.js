@@ -13,7 +13,11 @@ module.exports = (sequelize, Sequelize) => {
     },
     like: {
       type:Sequelize.ARRAY(Sequelize.STRING),
-    }
+    },
+    likeCount:{
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
   });
   return userStatus;
 };
