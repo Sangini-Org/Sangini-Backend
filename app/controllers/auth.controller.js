@@ -115,7 +115,7 @@ exports.getGoogleUserData = async (req, res) => {
       const newUser = await User.create({
         email: googleUser.email,
         username: googleUser.user,
-        isVerifified: true,
+        isVerfified: true,
         password: ''
       });
       console.log(newUser);
