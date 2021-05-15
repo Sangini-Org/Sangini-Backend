@@ -9,10 +9,7 @@ const { checkEmail } = require("../utils/extraFucntions");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-const querystring = require("querystring");
-const axios = require("axios");
 
-const { getGoogleUserData } = require("../utils/googleAuth");
 
 
 exports.signup = async (req, res) => {
@@ -48,6 +45,9 @@ exports.signin = async (req, res) => {
     const user = await User.findOne({
       where: condition
     })
+    if (!user.password){
+      return sendBadRequest(res,401,"You have already this account with google or facebook");
+    }
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
     }
@@ -75,46 +75,23 @@ exports.signin = async (req, res) => {
   }
 };
 
-// controller to get Google's Authentication Url
-exports.getGoogleAuthUrl = async (req, res) => {
-  const rootURL = "https://accounts.google.com/o/oauth2/v2/auth";
-  const options = {
-    redirect_uri: `${process.env.SERVER_URL}/${process.env.REDIRECT_URI}`,
-    client_id: process.env.GOOGLE_ID,
-    access_type: "offline",
-    response_type: "code",
-    prompt: "consent",
-    scope: [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email"
-    ].join(" ")
-  };
-
-  return sendJSONResponse(res, 200, "Send user to the url", `${rootURL}?${querystring.stringify(options)}`);
-}
-
 exports.getGoogleUserData = async (req, res) => {
   try {
-    const code = req.query.code;
-
-    const googleUser = await getGoogleUserData(code);
+    const {email}=req.body;
 
     const user = await User.findOne({
       where: {
-        email: googleUser.email
+        email: email
       }
     });
-    console.log(googleUser);
 
     // If user doesn't exist, create the user 
     // and assign a access_token to the user
     if(!user) {
-      if(!googleUser.verified_email)
-        return sendBadRequest(res, 400, "Invalid User");
 
       const newUser = await User.create({
-        email: googleUser.email,
-        username: googleUser.user,
+        email: email,
+        username: email.split("@")[0],
         isVerfified: true,
         password: ''
       });
@@ -125,13 +102,13 @@ exports.getGoogleUserData = async (req, res) => {
 
       return sendJSONResponse(res, 200, "User created", {
         user: newUser,
-        access_token: token
+        accessToken: token
       });
     }
 
-    if(user.password) {
-      return sendBadRequest(res, 404, "User has already registered.");
-    }
+    // if(user.password) {
+    //   return sendBadRequest(res, 404, "User has already registered with this email.");
+    // }
 
     const token = jwt.sign({ id: user.id }, config.secret, {
       expiresIn: 86400, // 24 hours
@@ -139,9 +116,8 @@ exports.getGoogleUserData = async (req, res) => {
 
     return sendJSONResponse(res, 200, "User logged-in", {
       user,
-      access_token: token
+      accessToken: token
     });
-  
   } catch (err) {
     return sendBadRequest(res, 400, err.message);
   }
