@@ -75,8 +75,10 @@ exports.getAllUser = async (req, res) => {
   try {
     const { page, offlimit, city, gender, username, state, firstName } = req.query;
     var condition = {};
-    const filters = { city, gender, username, state, firstName };
-
+    const filters = { city, username, state, firstName };
+    if(gender){
+      condition.gender=gender;
+    }
     Object.entries(filters).forEach(filter => {
       Object.assign(condition, filter[1] ? { [filter[0]]: { [Op.like]: `%${filter[1]}%` } } : null);
     })

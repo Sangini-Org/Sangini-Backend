@@ -1,6 +1,7 @@
 const userController = require("../controllers/user.controller");
 const friendrequestController = require("../controllers/friendRequest.controller");
 const userimageController = require("../controllers/userImage.controller");
+const statusController = require("../controllers/userStatus.controller");
 
 
 const userRecommendController = require("../controllers/userRecommend.controller");
@@ -15,9 +16,7 @@ module.exports = function (app) {
     );
     next();
   });
-  app.get('/api/users/recommendbytracks',[authJwt.verifyToken],userRecommendController.getMatchingUsersByTracks);
-  app.get('/api/users/recommendbyartists',[authJwt.verifyToken],userRecommendController.getMatchingUsersByArtists);
-  app.get('/api/users/recommendUser',[authJwt.verifyToken],userRecommendController.getMatchingUsers);
+ 
   app.get('/api/user/:id',[authJwt.verifyToken], userController.getUserById);
   app.put('/api/user/edit',[authJwt.verifyToken], userController.editUser);
   app.get('/api/users',[authJwt.verifyToken], userController.getAllUser);
@@ -29,20 +28,15 @@ module.exports = function (app) {
   app.post('/api/user/create/friendrequest', [authJwt.verifyToken], friendrequestController.createFriendRequest);
   app.put('/api/user/update/friendrequest', [authJwt.verifyToken], friendrequestController.updateFriendRequest);
   app.delete('/api/user/delete/friendrequest', [authJwt.verifyToken], friendrequestController.deleteFriendRequest);
-  
-  app.get('/api/user/list/friendrequest',[authJwt.verifyToken],friendrequestController.listFriendRequest); 
-  
-  
- 
-  
-
-
-
-
-
-
-
-
-
+  app.get('/api/user/list/friendrequest',[authJwt.verifyToken],friendrequestController.listFriendRequest);
+  app.get('/api/user/:id/status',[authJwt.verifyToken], statusController.getStatusById);
+  app.post('/api/user/create/status', [authJwt.verifyToken], statusController.addStatus);
+  app.put('/api/user/update/status', [authJwt.verifyToken], statusController.updateStatus);
+  app.put('/api/user/like/status', [authJwt.verifyToken], statusController.likeStatus);
+  app.delete('/api/user/delete/status', [authJwt.verifyToken], statusController.deleteStatus);
+  app.get('/api/user/status/all',[authJwt.verifyToken], statusController.getAllStatus);
+  app.get('/api/users/recommendbytracks',[authJwt.verifyToken],userRecommendController.getMatchingUsersByTracks);
+  app.get('/api/users/recommendbyartists',[authJwt.verifyToken],userRecommendController.getMatchingUsersByArtists);
+  app.get('/api/users/recommendUser',[authJwt.verifyToken],userRecommendController.getMatchingUsers);
 };
  
