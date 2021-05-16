@@ -45,11 +45,11 @@ exports.signin = async (req, res) => {
     const user = await User.findOne({
       where: condition
     })
-    if (!user.password){
-      return sendBadRequest(res,401,"You have already this account with google or facebook");
-    }
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
+    }
+    if (!user.password){
+      return sendBadRequest(res,401,"You have already this account with google or facebook");
     }
     const passwordIsValid = bcrypt.compareSync(
       req.body.password,
