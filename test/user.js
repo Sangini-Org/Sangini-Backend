@@ -501,5 +501,14 @@ describe("USERS API", () => {
                 .send({userId: '00000000-0000-0000-0000-000000000000'})
             expect(status).to.eq(404);
         })
+
+        it('Delete user status', async () => {
+            const { status } = await chai.request(server)
+                .delete('/api/user/delete/status')
+                .set('x-access-token', token2)
+            expect(status).to.eq(200);
+        })
+
+
     })
 })
