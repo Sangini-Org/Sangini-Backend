@@ -85,7 +85,7 @@ describe("USERS API", () => {
         const { status, body } = await chai.request(server)
             .post('/api/auth/signin')
             .send({
-                userInput: 'user2',
+                userInput: 'user34',
                 password: 'pw',
             });
         expect(status).to.eq(404);

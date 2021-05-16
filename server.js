@@ -4,6 +4,9 @@ const cors = require("cors");
 require('dotenv').config()
 const app = express();
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
 var fileUpload = require('express-fileupload');
 app.use(fileUpload({
   useTempFiles: true
@@ -21,6 +24,9 @@ app.use(bodyParser.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
+
+//swagger ui
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // console.log(process.env.NODE_ENV)
 
