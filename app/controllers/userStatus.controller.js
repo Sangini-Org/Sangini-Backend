@@ -19,18 +19,19 @@ exports.addStatus = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
     try {
+      if(JSON.stringify(req.body) === '{}'){
+        return sendBadRequest(res, 404, 'Status update failed ');
+      }
+      else{
         const { trackId, emoji, songLine } = req.body;
         fields = { trackId, emoji, songLine};
         fields.like = [];
         fields.likeCount = 0;
-        let result = await Status.update(fields,{
+        await Status.update(fields,{
                 where: { userId: req.userId }
             });
-        if (result == 1) {
         return sendJSONResponse(res, 200, "Status updated",);
-        } else {
-        return sendBadRequest(res, 404, 'Status update failed ');
-        }
+      }
     } catch (err) {
         return sendBadRequest(res, 500, 'Error while updating status' + err.message);
     }
@@ -75,11 +76,11 @@ exports.getAllStatus = async (req, res) => {
           ['like', 'DESC'],
           ['updatedAt',  'DESC'], 
         ],limit, offset});
-      if (allStatus) {
+      if (allStatus.rows.length) {
         const response = getPagingData(allStatus, page, limit);
         return sendJSONResponse(res, 200, "all status found ",response);
       } else {
-        return sendBadRequest(res, 404, " not found");
+        return sendBadRequest(res, 404, "Status not found");
       }
     }
     catch (err) {

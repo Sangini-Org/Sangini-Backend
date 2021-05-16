@@ -20,7 +20,7 @@ module.exports = {
     database: 'sangini_test',
     username: 'postgres',
     password: '1234',
-    host: 'postgres',
+    host: 'localhost',
     dialect: 'postgres'
   },
 
