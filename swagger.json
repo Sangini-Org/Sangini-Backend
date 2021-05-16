@@ -1,0 +1,659 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sangini Backend",
+    "description": "Api Ui for Sangini",
+    "termsOfService": "http://sangini/terms/",
+    "contact": {
+      "email": "abc@gmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api"
+    },
+    {
+      "url": "https://localhost:8080/api"
+    }
+  ],
+  "tags":[
+    {
+      "name":"Authentication",
+      "description":"User authentication"
+    },
+    {
+      "name": "Users",
+      "description": "Operations about user"
+    },
+    {
+      "name": "userImages",
+      "description": "Operations about user"      
+    }
+  ],
+  "paths": {
+    "/auth/signin":{
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary":"Login here",
+        "description":"Login for existing users",
+        "parameters":[
+        ],
+        "requestBody":{
+          "description": "Login Info",
+          "required": true,
+          "content": {
+            "Info": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userInput": {
+                    "type": "string",
+                    "example":"Ritesh or abc@gmail.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example":"123"
+                  }
+                }
+              }
+            }
+          }
+        },          
+        "responses": {
+          "200": {
+            "description": "SIGNED IN Successfuly",
+            "schema": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }            
+      }
+    },
+    "/auth/signup":{
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary":"Register here",
+        "description": "Create new user in system",
+        "parameters":[],
+        "requestBody": {
+          "description": "user Info",
+          "required": true,
+          "content": {
+            "Info": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example":"lucifer"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example":"abc@gmail.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example":"Azw@47"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User Registerd Successfully",
+            "content": {             
+            }
+          }          
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all the users",
+        "desription": "Get all the users",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": "true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{Id}":{
+      "get": {
+        "tags":["Users"],
+        "summary":"Get the user with Given Ids",
+        "description":"Enter the user id of format UUID",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "description": "ID of user that needs to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": "true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User Exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "User not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/user/edit": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated user object",
+          "content": {
+            "*application/json*": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "firstName": {
+                    "type": "string",
+                    "example":"Ritesh"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example":"Kumar"
+                  },
+                  "state": {
+                    "type": "string",
+                    "example":"Delhi"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example":"Delhi"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum":[
+                      "male","Female"
+                    ]
+                  },
+                  "bio": {
+                    "type": "string",
+                    "example":"I want to be your favorite hello and your hardest goodbye."
+                  },
+                  "dob": {
+                    "type": "string",
+                    "format": "date"
+                  }                  
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Invalid user supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "User not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/user/image/upload":{
+      "post": {
+        "tags": [
+          "userImages"
+        ],
+        "summary": "uploads an image",
+        "operationId": "uploadFile",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type":"object",
+                "properties": {
+                  "imageType": {
+                    "type": "string",
+                    "enum":["profile","gallery"],
+                    "description": "picture to be used as"
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "file to upload",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image Uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/image/update": {
+      "put": {
+        "tags": [
+          "userImages"
+        ],
+        "Summary": "Update the picture(Profile or Gallery)",
+        "operationId":"updateImage",
+        "parameters":[
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody":{
+          "description": "Image to be Updated using ID",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type":"object",
+                "properties": {
+                  "publicId": {
+                    "$ref":"#/components/schemas/UserImages",
+                    "description": "Id of Image to be updated"
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "file to upload",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/image/delete":{
+      "delete": {
+        "tags":["userImages"],
+        "summary":"Deletes an image",
+        "operationId":"deleteImage",
+        "parameters":[
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of Image to be deleted",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "publicId":{
+                    "type":"string",
+                    "example":"n2dzs56arg3xp4i7huvf"
+                  }
+                }              
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Image Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }      
+    },
+    "/user/{Id}/image":{
+      "get": {
+        "tags":["userImages"],
+        "summary":"Get all the image of an User",
+        "description":"Enter the Id of the User",
+        "operationId":"getImageById",
+        "parameters":[
+          {
+            "name": "Id",
+            "in": "path",
+            "description": "ID of user whose images needs to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200":{
+            "description":"User Images",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserImages"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Images not found",
+            "content": {}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "format":"password"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum":[
+              "male","Female"
+            ]
+          },
+          "bio": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date"
+          },
+          "isVerfified": {
+            "type": "boolean",
+            "default": "false"
+          },
+          "uniqueString": {
+            "type": "string"
+          },
+          "spotifyRefreshToken": {
+            "type": "string"
+          },
+          "isSpotifyConnected": {
+            "type": "boolean",
+            "default": "false"
+          },
+          "spotifyPlaylistId": {
+            "type": "string"
+          },
+          "isProfileUpdated": {
+            "type": "boolean",
+            "default": "false"
+          }
+        },
+        "xml":{
+          "name":"User"
+        }
+      },
+      "UserImages":{
+        "type":"object",
+        "properties":{
+            "publicId": {
+              "type": "string",
+              "required": true              
+          },
+          "url": {
+              "type": "string",
+              "required": true
+          },
+          "imgType": {
+              "type": "string",
+              "enum": ["profile", "gallery"]
+          }        
+        },
+        "xml":{
+          "name":"UserImages"
+        }
+      },
+      "FriendRequests":{
+        "type":"object",
+        "properties":{
+          "senderId": {
+            "type": "string",
+            "primaryKey":"true"
+          },
+          "receiverId": {
+              "type": "string",
+              "primaryKey":"true"
+          },
+          "status": {      
+              "type":"integer",
+              "defaul":"1" ,
+              "enum":["1","2","3","4"],
+              "description": "Status states:\n  1 : `pending`\n  2 : `Accepted`\n  3 : `Rejected`\n  4 : `blocked`\n"
+          }
+        },
+        "xml":{
+          "name":"FriendRequests"
+        }
+      },
+      "Track":{
+        "type":"object",
+        "properties":{
+          "trackId": {
+            "type": "string",
+            "primaryKey":"true"
+          },
+          "trackName": {
+              "type": "string"
+          }
+        },
+        "xml":{
+          "name":"Track"
+        }
+      },
+      "UserTrack":{
+        "type":"array",
+        "properties":{
+          "trackList": {
+            "type":"string"
+          }
+        },
+        "xml":{
+          "name":"UserTrack"
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}  
