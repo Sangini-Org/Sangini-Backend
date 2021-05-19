@@ -18,7 +18,6 @@ const checkProfile= async (userId) =>{
       if (count>=2){ 
         status=true;
         const user = await User.findOne({where: { id: userId }, attributes: fields});
-        console.log('line 21',user);
         for(let field of fields){
           if(user.dataValues[field] === null){
            status=false;
@@ -55,12 +54,17 @@ exports.getUserById = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   try {
-    const fields= { firstName, lastName, bio, state, city, gender ,dob} = req.body;    
-    await User.update(
+    const { firstName, lastName, bio, state, city, gender ,dob} = req.body;
+    fields= { firstName, lastName, bio, state, city, gender ,dob};    
+    const result = await User.update(
       fields, { where: { id: req.userId } 
     })
-     checkProfile(req.userId);
-    return sendJSONResponse(res, 200, "Info updated successfully ");
+    checkProfile(req.userId);
+    if(result==1){
+      return sendJSONResponse(res, 200, "Info updated successfully ");
+    }else{
+      return sendBadRequest(res, 404, "Update Failed");
+    }
   }
   catch (err) {
     return sendBadRequest(res, 500, `${err.message}`)
@@ -71,8 +75,10 @@ exports.getAllUser = async (req, res) => {
   try {
     const { page, offlimit, city, gender, username, state, firstName } = req.query;
     var condition = {};
-    const filters = { city, gender, username, state, firstName };
-
+    const filters = { city, username, state, firstName };
+    if(gender){
+      condition.gender=gender;
+    }
     Object.entries(filters).forEach(filter => {
       Object.assign(condition, filter[1] ? { [filter[0]]: { [Op.like]: `%${filter[1]}%` } } : null);
     })
@@ -85,7 +91,7 @@ exports.getAllUser = async (req, res) => {
 
     if (users) {
       const response = getPagingData(users, page, limit);
-      res.send(response);
+      return sendJSONResponse(res, 200, "Users", response)
     } else {
       return sendBadRequest(res, 404, "Users Not Found");
     }

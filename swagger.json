@@ -116,6 +116,10 @@
         }
       }
     },
+      "description": "Operations about user"      
+    }
+  ],
+  "paths": {
     "/auth/signin":{
       "post": {
         "tags": [
@@ -289,7 +293,28 @@
                 }
               }
             }
-          }          
+          } 
+        },
+          "400": {
+            "description": "User Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -426,6 +451,7 @@
             "in": "header",
             "name": "x-access-token",
             "description": "Access token of user whose image to be uploaded",
+            "description": "Access token of user to be updated",
             "required": true,
             "schema": {
               "type": "string"
@@ -439,11 +465,13 @@
                 "type":"object",
                 "properties": {
                   "type": {
+                  "imageType": {
                     "type": "string",
                     "enum":["profile","gallery"],
                     "description": "picture to be used as"
                   },
                   "image": {
+                  "file": {
                     "type": "string",
                     "description": "file to upload",
                     "format": "binary"
@@ -497,6 +525,10 @@
                     "description": "Id of Image to be updated"
                   },
                   "image": {
+                    "$ref":"#/components/schemas/UserImages",
+                    "description": "Id of Image to be updated"
+                  },
+                  "file": {
                     "type": "string",
                     "description": "file to upload",
                     "format": "binary"
@@ -530,6 +562,7 @@
             "in": "header",
             "name": "x-access-token",
             "description": "Access token of user whose image to be deleted",
+            "description": "Access token of user to be updated",
             "required": true,
             "schema": {
               "type": "string"
@@ -824,7 +857,9 @@
         }
       }
     }    
-  },  
+  }, 
+    }
+  },
   "components": {
     "schemas": {
       "User": {
@@ -875,6 +910,7 @@
             "format": "date"
           },
           "isVerified": {
+          "isVerfified": {
             "type": "boolean",
             "default": "false"
           },

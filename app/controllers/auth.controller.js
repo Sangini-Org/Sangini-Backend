@@ -10,6 +10,8 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
 
+
+
 exports.signup = async (req, res) => {
   // Save User to Database
   try {
@@ -46,6 +48,9 @@ exports.signin = async (req, res) => {
     if (!user) {
       return sendBadRequest(res, 404, "User Not Found");
     }
+    if (!user.password){
+      return sendBadRequest(res,401,"You have already this account with google or facebook");
+    }
     const passwordIsValid = bcrypt.compareSync(
       req.body.password,
       user.password
@@ -69,6 +74,54 @@ exports.signin = async (req, res) => {
     return sendBadRequest(res, 500, `${err.message}`)
   }
 };
+
+exports.getGoogleUserData = async (req, res) => {
+  try {
+    const {email}=req.body;
+
+    const user = await User.findOne({
+      where: {
+        email: email
+      }
+    });
+
+    // If user doesn't exist, create the user 
+    // and assign a access_token to the user
+    if(!user) {
+
+      const newUser = await User.create({
+        email: email,
+        username: email.split("@")[0],
+        isVerfified: true,
+        password: ''
+      });
+      console.log(newUser);
+      let token = jwt.sign({ id: newUser.dataValues.id }, config.secret, {
+        expiresIn: 86400, // 24 hours
+      });
+
+      return sendJSONResponse(res, 200, "User created", {
+        user: newUser,
+        accessToken: token
+      });
+    }
+
+    // if(user.password) {
+    //   return sendBadRequest(res, 404, "User has already registered with this email.");
+    // }
+
+    const token = jwt.sign({ id: user.id }, config.secret, {
+      expiresIn: 86400, // 24 hours
+    });
+
+    return sendJSONResponse(res, 200, "User logged-in", {
+      user,
+      accessToken: token
+    });
+  } catch (err) {
+    return sendBadRequest(res, 400, err.message);
+  }
+}
 
 exports.verifyUserEmail = async (req, res) => {
   try {
