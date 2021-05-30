@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+    app:
+        image: nodejs
+        container_name: nodejs
+        build: .
+        depends_on:
+          - postgres
+        environment:
+            DB_USER: postgres
+            DB_PASSWORD: postgres
+            DB_HOST: postgres
+            DB_SCHEMA: postgres
+        ports:
+          - "3000:3000"
+        command: npm start
+
+    postgres:
+        image: postgres
+        container_name: sangini-postgres
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+        ports: 
+            - "5432:5432"
+        volumes:
+            - ./pgdata:/var/lib/postgresql/data
+
+volumes:
+    pgdata:
