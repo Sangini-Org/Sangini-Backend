@@ -28,8 +28,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //swagger ui
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// console.log(process.env.NODE_ENV)
-
 const db = require("./app/models");
 if (process.env.NODE_ENV !== "test" ){
 

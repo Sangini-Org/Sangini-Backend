@@ -1,27 +1,25 @@
 version: '3.8'
 services:
     app:
-        image: nodejs
-        container_name: nodejs
         build: .
         depends_on:
           - postgres
-        environment:
-            DB_USER: postgres
-            DB_PASSWORD: postgres
-            DB_HOST: postgres
-            DB_SCHEMA: postgres
         ports:
-          - "3000:3000"
+          - "8080:8080"
+        volumes:
+          - .:/usr/app
         command: npm start
 
     postgres:
-        image: postgres
-        container_name: sangini-postgres
+        image: postgres:13-alpine
+        restart: always
+        env_file:
+            .env
         environment:
+            DEV_ENV: staging
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: postgres
+            POSTGRES_DB: sangini
         ports: 
             - "5432:5432"
         volumes:
