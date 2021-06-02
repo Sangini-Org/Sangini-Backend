@@ -126,7 +126,7 @@ exports.forgotPassword = async (req,res) => {
     return sendBadRequest(res, 401, "Invalid access");
   }
 }
-exports.resetPassword = async(req,res) =>{
+exports.resetPassword = async(req,res) => {
   const resetToken = req.params.token;
   const newPassword = req.body;
 
