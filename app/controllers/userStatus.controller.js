@@ -24,10 +24,15 @@ exports.updateStatus = async (req, res) => {
       }
       else{
         const { trackId, emoji, songLine } = req.body;
-        fields = { trackId, emoji, songLine};
-        fields.like = [];
-        fields.likeCount = 0;
-        await Status.update(fields,{
+        let like = [];
+        let likeCount = 0;
+        await Status.update({
+          trackId: trackId,
+          emoji: emoji,
+          songLine: songLine,
+          like: like,
+          likeCount: likeCount
+        },{
                 where: { userId: req.userId }
             });
         return sendJSONResponse(res, 200, "Status updated",);
