@@ -12,7 +12,7 @@ const Transport = nodemailer.createTransport({
 
 module.exports = (email, forgetPasswordToken) => {
   let mailOptions = {
-    from: 'devkumar5436@gmail.com',
+    from: "devkumar5436@gmail.com",
     to: email,
     subject: "Reset-password-Link",
     html: `Click  <a href="http://localhost:8080/api/auth/resetPassword/${forgetPasswordToken}"> here </a> to reset your password. Thanks`
