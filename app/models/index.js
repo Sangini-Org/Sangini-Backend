@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || process.env.DEV_ENV || 'development';
 const config = require(__dirname + '/../config/db.config.js')[env];
 const db = {};
 
@@ -36,6 +36,7 @@ db.users.hasMany(db.userImages);
 db.userImages.belongsTo(db.users);
 db.users.hasOne(db.usertracks);
 db.usertracks.belongsTo(db.users);
-
+db.users.hasOne(db.userStatus);
+db.userStatus.belongsTo(db.users);
 
 module.exports = db;

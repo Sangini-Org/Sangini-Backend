@@ -9,7 +9,7 @@
 /coverage
 
 #config
-/app/config/db.config.js
+/app/config/db.config
 
 # production
 /build
@@ -28,3 +28,4 @@ yarn-error.log*
 
 #tmp upload files
 /tmp 
+pgdata

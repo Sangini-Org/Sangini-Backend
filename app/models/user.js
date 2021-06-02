@@ -9,9 +9,12 @@ module.exports = (sequelize, Sequelize) => {
     },
     username: {
       type: Sequelize.STRING,
+      unique: true,
     },
     email: {
       type: Sequelize.STRING,
+      isEmail: true,
+      unique: true,
     },
     password: {
       type: Sequelize.STRING,
@@ -52,9 +55,14 @@ module.exports = (sequelize, Sequelize) => {
     },
     isSpotifyConnected: {
       type: Sequelize.BOOLEAN, 
+      defaultValue: false
     },
     spotifyPlaylistId: {
       type: Sequelize.STRING,
+    },
+    isProfileUpdated: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
     }
   });
 

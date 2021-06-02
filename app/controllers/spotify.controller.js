@@ -14,7 +14,6 @@ const Track = db.tracks;
 exports.authorizeSpotify = (req, res) => {
   console.log("working");
   const state = generateRandomString(16);
-  console.log(process.env.CLIENT_ID, "line 11");
   res.cookie(stateKey, state);
   const scope = "user-read-private user-read-email playlist-modify-public";
   res.redirect(
@@ -34,6 +33,7 @@ exports.spotifyToken = (req, res) => {
   const code = req.query.code || null;
   const state = req.query.state || null;
   const storedState = req.cookies ? req.cookies[stateKey] : null;
+  let spotifyUserId = '';
 
   if (state === null || state !== storedState) {
     res.redirect(
@@ -63,20 +63,35 @@ exports.spotifyToken = (req, res) => {
 
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
-        console.log(body)
+        console.log('test',body);
         const access_token = body.access_token,
           refresh_token = body.refresh_token;
-        const options = {
+
+        const userIdOption = {
+          url: "https://api.spotify.com/v1/me",
+          headers: { Authorization: "Bearer " + access_token },
+          json: true,
+        };
+
+        request.get(userIdOption, function(error, response, body){
+          try{
+            spotifyUserId = body.id;
+          }catch (err) {
+            console.log("error while fetching spotify user details", err);
+          }
+        })
+
+        const checkPlaylistoptions = {
           url: "https://api.spotify.com/v1/me/playlists/",
           headers: { Authorization: "Bearer " + access_token },
           json: true,
         };
 
         // use the access token to access the Spotify Web API
-        request.get(options, async function (error, response, body) {
+        request.get(checkPlaylistoptions, async function (error, response, body) {
           try {
-            const userId = body.items[0].owner.id;
-            console.log(access_token);
+            console.log('line 77', body)
+            const userId = spotifyUserId;
             const form = {
               name: "sangini",
               description:
@@ -90,12 +105,7 @@ exports.spotifyToken = (req, res) => {
               // json: true
             };
             let sanginiPlaylistId = "";
-            // console.log(body.items)
-            for(let item of body.items){
-              console.log(item.name)
-            }
-            const flag = body.items.find((item) => item.name === "sangini");
-            console.log(flag)
+            const flag = body.items.find((item) => item.name === "sangini") || null;
             if (!flag) {
               request.post(
                 createplaylistOptions,
@@ -106,7 +116,6 @@ exports.spotifyToken = (req, res) => {
             } else {
               sanginiPlaylistId = flag.id;
             }
-            console.log('sdfjkasdjfk', sanginiPlaylistId);
             await User.update(
               {
                 isSpotifyConnected: true,
@@ -164,11 +173,13 @@ exports.spotifyPlaylistSync = async (req, res) => {
         };
 
         request.get(options, async function (error, response, body) {
-          console.log(body.items)
           let tracks = [];
+          let artists = new Set();
           for (let item of body.items) {
-            console.log(item.track.name)
-            console.log(item.track.id)
+            for (let artist of item.track.artists){
+              console.log(artist.name);
+              artists.add(artist.name)
+            }
             tracks.push(item.track.id)
             const track = await Track.findOne({
                   where:{
@@ -182,6 +193,8 @@ exports.spotifyPlaylistSync = async (req, res) => {
               })
             }
           }
+          console.log([...artists]);
+          console.log([...artists].length);
           const usertrack = await UserTrack.findOne({
             where: {
               userId: req.userId
@@ -191,13 +204,17 @@ exports.spotifyPlaylistSync = async (req, res) => {
           if (!usertrack) {
             await UserTrack.create({
               tracklist: tracks,
-              userId: req.userId
+              userId: req.userId,
+              artistList: [...artists],
+              artistCount: [...artists].length,
             })
           }
           else {
             await UserTrack.update(
               {
-                tracklist: tracks
+                tracklist: tracks,
+                artistList: [...artists],
+                artistCount: [...artists].length,
               },
               {
                 where: {
