@@ -115,7 +115,7 @@ exports.forgotPassword = async (req,res) => {
       return sendBadRequest(res, 404, "Invalid Email!");
     else{
       const forgetPasswordToken = jwt.sign({ user: user.email }, 
-       config.resetSecret, { expiresIn: '10m' });
+       config.resetSecret, { expiresIn: "10m" });
       user.forgetPasswordToken = forgetPasswordToken;
       
       await user.save();  
