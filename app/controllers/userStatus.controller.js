@@ -19,7 +19,7 @@ exports.addStatus = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
     try {
-      if(JSON.stringify(req.body) === '{}'){
+      if(JSON.stringify(req.body) === "{}"){
         return sendBadRequest(res, 404, 'Status update failed ');
       }
       else{
