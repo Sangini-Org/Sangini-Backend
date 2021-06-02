@@ -77,6 +77,7 @@ describe("USERS API", () => {
         expect(body.data.user.username).to.equal('user3');
         expect(body.data.accessToken).to.exist;
         token = body.data.accessToken;
+        console.log(token)
         userId = body.data.user.id;
     })
 

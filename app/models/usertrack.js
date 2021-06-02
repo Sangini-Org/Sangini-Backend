@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
     tracklist: {
       type: Sequelize.ARRAY(Sequelize.STRING)
     },
-    artistList: {
+    artistlist: {
       type: Sequelize.ARRAY(Sequelize.STRING)
     },
     artistCount: {
