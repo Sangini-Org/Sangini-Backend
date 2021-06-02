@@ -3,7 +3,7 @@ const sendgridTransport = require("nodemailer-sendgrid");
 const { sendBadRequest, sendJSONResponse } = require("../utils/handle");
 
 const Transport = nodemailer.createTransport({
-  service:'SendGrid',
+  service:"SendGrid",
   auth: {
     user: "apikey",
     pass: process.env.SENDGRID_API_KEY
