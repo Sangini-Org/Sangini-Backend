@@ -7,10 +7,14 @@ const Op = db.Sequelize.Op;
 
 exports.addStatus = async (req, res) => {
     try {
-        const fields = { trackId, emoji, songLine } = req.body;
-        fields.userId=req.userId;
-        fields.like=[];
-        let status = await Status.create(fields);
+        const { trackId, emoji, songLine } = req.body;
+        let status = await Status.create({
+          trackId: trackId,
+          emoji: emoji,
+          songLine: songLine,
+          userId: req.userId,
+          like: [],
+        });
         return sendJSONResponse(res, 200, "Status has been created", status);
     } catch (err) {
         return sendBadRequest(res, 404, 'Error while creating Status ' + err.message);
@@ -24,14 +28,13 @@ exports.updateStatus = async (req, res) => {
       }
       else{
         const { trackId, emoji, songLine } = req.body;
-        let like = [];
-        let likeCount = 0;
+      
         await Status.update({
           trackId: trackId,
           emoji: emoji,
           songLine: songLine,
-          like: like,
-          likeCount: likeCount
+          like: [],
+          likeCount: 0
         },{
                 where: { userId: req.userId }
             });
