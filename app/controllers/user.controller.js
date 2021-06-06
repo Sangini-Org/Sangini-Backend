@@ -125,6 +125,24 @@ exports.getPlaylist = async (req, res) => {
   }
 };
 
+exports.profileUpdateState = async (req, res) => {
+  try {
+    let updateState = req.body.updateState;
+    if (updateState === 10) {
+      await User.update({ isProfileUpdated: true }, { where: { id: userId } });
+    }
+    let result = await User.update({ updateState: updateState }, { where: { id: userId } });
+    if (result === 1) {
+      return sendJSONResponse(res, 200, "success");
+    } else {
+      return sendBadRequest(res, 404, "failed to update updateState")
+    }
+  }
+  catch (err) {
+    return sendBadRequest(res, 500, 'Error while updating updateState ' + err.message)
+  }
+};
+
 exports.checkProfile= (userId)=>{
   return checkProfile(userId)
 }
