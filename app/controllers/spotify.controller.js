@@ -24,6 +24,7 @@ exports.authorizeSpotify = (req, res) => {
       scope: scope,
       redirect_uri: process.env.REDIRECT_URI,
       state: state,
+      // show_dialog: true
     })
   );
 };
