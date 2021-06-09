@@ -60,14 +60,15 @@ module.exports = (sequelize, Sequelize) => {
     isProfileUpdated: {
       type: Sequelize.BOOLEAN,
       defaultValue: false
-    },updateState: {
+    },
+    updateState: {
         // 0: "NOTHING"
         // 1: "PROFILE"
         // 2: "PROFILE UPLOAD"
         // 3: "PLAYLIST SYNC"
         // 4: "ETC"
         // 10: "Complete"
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       defaultValue: 0
     }
   });
