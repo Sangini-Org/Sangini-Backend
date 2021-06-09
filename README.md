@@ -17,6 +17,8 @@ configure `db.config.js`
 ### For creating the test database 
 `CREATE DATABASE sangini_test WITH OWNER postgres;`
 
+### Deployed URL:
+https://sangini-backend.herokuapp.com
 
 
 
