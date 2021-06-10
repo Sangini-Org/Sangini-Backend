@@ -511,4 +511,19 @@ describe("USERS API", () => {
 
 
     })
+
+    it("Profile update state", async () => {
+        let res = await chai.request(server)
+            .post("/api/user/updatestate")
+            .set("x-access-token", token)
+            .send({updateState: "1"});
+      expect(res.status).to.eq(200);
+    });
+
+    it("Profile update state -fail if no updatestate", async () => {
+        let res = await chai.request(server)
+            .post("/api/user/updatestate")
+            .set("x-access-token", token);
+      expect(res.status).to.eq(404);
+    });
 })
