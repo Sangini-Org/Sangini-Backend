@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+    app:
+        build: .
+        depends_on:
+          - postgres
+        ports:
+          - "8080:8080"
+        volumes:
+          - .:/usr/app
+        command: npm start
+
+    postgres:
+        image: postgres:13-alpine
+        restart: always
+        env_file:
+            .env
+        environment:
+            DEV_ENV: staging
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: sangini
+        ports: 
+            - "5432:5432"
+        volumes:
+            - ./pgdata:/var/lib/postgresql/data
+
+volumes:
+    pgdata:
