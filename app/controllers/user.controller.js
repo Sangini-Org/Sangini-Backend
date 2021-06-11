@@ -54,8 +54,11 @@ exports.getUserById = async (req, res) => {
 
 exports.editUser = async (req, res) => {
   try {
-    const { firstName, lastName, bio, state, city, gender ,dob} = req.body;
-    fields= { firstName, lastName, bio, state, city, gender ,dob};    
+    let { firstName, lastName, bio, state, city, gender ,dob, hobbies, updateState} = req.body;
+    if(dob) {
+      dob = new Date(dob);
+    } 
+    fields= { firstName, lastName, bio, state, city, gender ,dob, hobbies, updateState};    
     const result = await User.update(
       fields, { where: { id: req.userId } 
     })
