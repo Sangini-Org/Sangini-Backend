@@ -70,6 +70,9 @@ module.exports = (sequelize, Sequelize) => {
         // 10: "Complete"
       type: Sequelize.STRING,
       defaultValue: 0
+    },
+    hobbies: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
     }
   });
 
