@@ -14,7 +14,7 @@ app.use(fileUpload({
 const cookieParser = require('cookie-parser');
 
 var corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "*",
 };
 
 app.use(cors(corsOptions));
