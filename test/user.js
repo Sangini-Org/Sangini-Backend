@@ -35,6 +35,10 @@ describe("USERS API", () => {
             db.friendrequests.destroy({
                 where: {},
                 truncate: { cascade: true }
+            }),
+            db.userStatus.destroy({
+                where: {},
+                truncate: { cascade: true }
             })
         ])
     })
@@ -258,9 +262,9 @@ describe("USERS API", () => {
         })
     })
 
+    let userId2, token2;
     describe("FRIEND REQUEST API", () => {
         
-        let userId2, token2;
 
         it('LogIn another User', async () => {
             const { status, body } = await chai.request(server)
@@ -348,4 +352,178 @@ describe("USERS API", () => {
         })
 
     })
+
+    describe("USER STATUS", () => {
+        
+     
+        it('Add new status', async () => {
+            const { status } = await chai.request(server)
+                .post('/api/user/create/status')
+                .set('x-access-token', token)
+                .send({ 
+                    trackId: '3cw4Y2ziYYiJV49bWN5H1D',
+                    emoji: 'U+1F600',
+                    songLine: 'Thinking out loud'
+                 })
+            expect(status).to.eq(200);
+
+        })
+
+        it('Add new status - failed if no token', async () => {
+            const { status } = await chai.request(server)
+                .post('/api/user/create/status')
+                .send({ 
+                    trackId: '3cw4Y2ziYYiJV49bWN5H1D',
+                    emoji: 'U+1F600',
+                    songLine: 'Thinking out loud'
+                 })
+            expect(status).to.eq(403);
+
+        })
+
+        it('Update status', async () => {
+            const { status } = await chai.request(server)
+                .put('/api/user/update/status')
+                .set('x-access-token', token)
+                .send({ 
+                    trackId: '3cw4Y2ziYYiJV49bWN5H1D',
+                    emoji: '❤️',
+                    songLine: 'Thinking out loud'
+                 })
+            expect(status).to.eq(200);
+
+        })
+
+        it('Update status -Fail if no updating body ', async () => {
+            const { status } = await chai.request(server)
+                .put('/api/user/update/status')
+                .set('x-access-token', token)
+            expect(status).to.eq(404);
+        })
+
+        it('Add another status - to test getAllStatus', async () => {
+            const { status } = await chai.request(server)
+                .post('/api/user/create/status')
+                .set('x-access-token', token2)
+                .send({ 
+                    trackId: '39LLxExYz6ewLAcYrzQQyP',
+                    emoji: '🔥',
+                    songLine: 'I got you, moonlight, you are my starlight'
+                 })
+            expect(status).to.eq(200);
+
+        })
+
+        it('Get user by Id', async () => {
+            const { status } = await chai.request(server)
+                .get('/api/user/'+userId2+'/status')
+                .set('x-access-token', token2)
+            expect(status).to.eq(200);
+
+        })
+        
+        it('Get user by Id - Failed if invalid id', async () => {
+            const { status } = await chai.request(server)
+                .get('/api/user/IDisINVALID/status')
+                .set('x-access-token', token2)
+            expect(status).to.eq(500);
+
+        })
+
+        it('Get user by Id - if status not found', async () => {
+            const { status } = await chai.request(server)
+                .get('/api/user/00000000-0000-0000-0000-000000000000/status')
+                .set('x-access-token', token2)
+            expect(status).to.eq(404);
+
+        })
+  
+        it('Get all  status', async () => {
+            const { status ,body} = await chai.request(server)
+                .get('/api/user/status/all')
+                .set('x-access-token', token2);
+            expect(status).to.eq(200);
+            expect(body.metadata.message).to.equal('all status found ');
+        })
+
+        it('Get all  status by username query', async () => {
+            const { status ,body} = await chai.request(server)
+                .get('/api/user/status/all?user=username')
+                .set('x-access-token', token2)
+            expect(status).to.eq(200);
+            expect(body.metadata.message).to.equal('all status found ');
+        })
+        
+        it('Get all  status by username -blank array if no match', async () => {
+            const { status ,body} = await chai.request(server)
+                .get('/api/user/status/all?username=x')
+                .set('x-access-token', token)
+            expect(status).to.eq(200);
+            expect(body.metadata.message).to.equal('user status not found by username');
+        })
+
+        it('Get all  status pagination query', async () => {
+            const { status } = await chai.request(server)
+                .get('/api/user/status/all?page=2&offlimit=1')
+                .set('x-access-token', token2)
+            expect(status).to.eq(200);
+        })
+
+        it('Get all  status -fail for over paginated query', async () => {
+            const { status } = await chai.request(server)
+                .get('/api/user/status/all?page=99999')
+                .set('x-access-token', token2)
+            expect(status).to.eq(404);
+        })
+
+        it('Like status', async () => {
+            const { status ,body} = await chai.request(server)
+                .put('/api/user/like/status')
+                .set('x-access-token', token2)
+                .send({ userId: userId })
+            expect(status).to.eq(200);
+            expect(body.metadata.message).to.equal('Status Liked');
+        })
+
+        it('Unlike status', async () => {
+            const { status ,body} = await chai.request(server)
+                .put('/api/user/like/status')
+                .set('x-access-token', token2)
+                .send({ userId: userId })
+            expect(status).to.eq(200);
+            expect(body.metadata.message).to.equal('Status Unliked');
+        })
+
+        it('Like/Unlike status -fail if no status', async () => {
+            const { status ,body} = await chai.request(server)
+                .put('/api/user/like/status')
+                .set('x-access-token', token2)
+                .send({userId: '00000000-0000-0000-0000-000000000000'})
+            expect(status).to.eq(404);
+        })
+
+        it('Delete user status', async () => {
+            const { status } = await chai.request(server)
+                .delete('/api/user/delete/status')
+                .set('x-access-token', token2)
+            expect(status).to.eq(200);
+        })
+
+
+    })
+
+    it("Profile update state", async () => {
+        let res = await chai.request(server)
+            .post("/api/user/updatestate")
+            .set("x-access-token", token)
+            .send({updateState: "1"});
+      expect(res.status).to.eq(200);
+    });
+
+    it("Profile update state -fail if no updatestate", async () => {
+        let res = await chai.request(server)
+            .post("/api/user/updatestate")
+            .set("x-access-token", token);
+      expect(res.status).to.eq(404);
+    });
 })

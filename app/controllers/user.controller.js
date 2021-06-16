@@ -135,8 +135,8 @@ exports.profileUpdateState = async (req, res) => {
       await User.update({ isProfileUpdated: true }, { where: { id: req.userId } });
     }
     let result = await User.update({ updateState: state }, { where: { id: req.userId } });
-    if (result) {
-      return sendJSONResponse(res, 200, "status updated", {updateState: state});
+    if (result==1) {
+      return sendJSONResponse(res, 200, "state updated", {updateState: state});
     } else {
       return sendBadRequest(res, 404, "failed to update updateState");
     }
