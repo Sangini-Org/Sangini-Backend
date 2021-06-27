@@ -57,7 +57,7 @@ exports.spotifyToken = (req, res) => {
 
   request.post(authOptions, function (error, response, body) {
     console.log(error);
-    console.log(response);
+    console.log(response.statusCode);
     if (!error && response.statusCode === 200) {
       console.log("test", body);
       const access_token = body.access_token,

@@ -34,12 +34,10 @@ exports.addUserImage = async (req, res) => {
         }
       }
     );
-    return sendJSONResponse(
-      res,
-      200,
-      "Image uploaded successfully",
-      image.public_id
-    );
+    return sendJSONResponse(res, 200, "Image uploaded successfully", {
+      id: image.public_id,
+      url: image.secure_url,
+    });
   } catch (err) {
     return sendBadRequest(res, 500, `${err.message}`);
   }
@@ -109,7 +107,7 @@ exports.updateUserImage = async (req, res) => {
 
 exports.deleteUserImage = async (req, res) => {
   try {
-    const { publicId } = req.body;
+    const publicId = req.params.id;
     if (publicId) {
       await cloudinary.uploader.destroy(publicId, async (result, err) => {
         await userImage.destroy({
