@@ -11,7 +11,7 @@ exports.addUserImage = async (req, res) => {
   try {
     console.log("run");
     // const { type } = req.body;
-    console.log(req.files.data);
+    console.log(req.files);
     const file = req.files.file;
     console.log(file);
     const image = await cloudinary.uploader.upload(
@@ -27,7 +27,7 @@ exports.addUserImage = async (req, res) => {
           await userImage.create({
             publicId: result.public_id,
             url: result.secure_url,
-            imgType: "gallery",
+            imgType:req.body.type,
             userId: req.userId,
           });
           checkProfile(req.userId);
