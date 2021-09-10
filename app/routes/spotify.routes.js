@@ -9,8 +9,6 @@ module.exports = function (app) {
         );
         next();
       });
-
-    app.get('/api/connect', [authJwt.verifyToken], controller.authorizeSpotify);
-    app.get('/api/callback',[authJwt.verifyToken], controller.spotifyToken);
+    app.post('/api/connect',[authJwt.verifyToken], controller.spotifyToken);
     app.get('/api/playlist/sync',[authJwt.verifyToken],controller.spotifyPlaylistSync)
 }   

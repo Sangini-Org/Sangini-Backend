@@ -19,7 +19,7 @@ module.exports = function (app) {
   app.get('/api/users',[authJwt.verifyToken], userController.getAllUser);
   app.post('/api/user/image/upload',[authJwt.verifyToken], userimageController.addUserImage);
   app.put('/api/user/image/update',[authJwt.verifyToken], userimageController.updateUserImage);
-  app.delete('/api/user/image/delete', [authJwt.verifyToken], userimageController.deleteUserImage);
+  app.delete('/api/user/image/delete/:id', [authJwt.verifyToken], userimageController.deleteUserImage);
   app.get('/api/user/:id/image', userimageController.getUserImage);
   app.get('/api/user/:id/playlist', userController.getPlaylist);
   app.post('/api/user/create/friendrequest', [authJwt.verifyToken], friendrequestController.createFriendRequest);
