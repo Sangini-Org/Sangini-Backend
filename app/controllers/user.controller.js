@@ -3,6 +3,7 @@ const User = db.users;
 const userImage = db.userImages;
 const UserTrack = db.usertracks;
 const Track = db.tracks;
+const FriendRequest = db.friendrequests;
 const { sendJSONResponse, sendBadRequest } = require("../utils/handle")
 const { getPagingData, getPagination } = require("../utils/paginate");
 
@@ -91,6 +92,18 @@ exports.getAllUser = async (req, res) => {
       where: condition, limit, offset,
       attributes: { exclude: ['password'] }
     })
+    
+    for(let user of users.rows ) {
+      const checkFriendRequestStatus = await FriendRequest.findOne({
+        where : {
+          senderId: req.userId,
+          receiverId: user.dataValues.id
+        }
+      })
+      console.log(checkFriendRequestStatus);
+      
+      user.dataValues['friendRequestStatus'] = checkFriendRequestStatus?.dataValues.status || null;
+    }
 
     if (users) {
       const response = getPagingData(users, page, limit);
