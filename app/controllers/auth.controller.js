@@ -152,7 +152,8 @@ exports.verifyUserEmail = async (req, res) => {
 // Resends the verification email if time limit of the verification link has passed
 exports.resendVerificationEmail = async (req, res) => {
   try {
-    const user = await User.findOne({ uniqueString: req.params.uniqueString });
+    const user = await User.findOne({where:{ uniqueString: req.params.uniqueString } });
+    console.log(user);
     let uniqueString = generateRandomString('hex');
 
     user.uniqueString = uniqueString;

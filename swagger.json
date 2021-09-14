@@ -32,6 +32,90 @@
     },
     {
       "name": "userImages",
+      "description": "Operations about Images"      
+    },
+    {
+      "name":"Friend Request",
+      "description":"Operation related to friend request"
+    }
+  ],
+  "paths": {
+    "/auth/verify/{uniqueString}":{
+      "get":{
+        "tags": [
+          "Authentication"
+        ],
+        "summary":"Verify User Email",
+        "description":"Verify user using the uniqueString",
+        "parameters":[
+          {
+            "name": "uniqueString",
+            "in": "path",
+            "description": "Unique string to verify email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email verified",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "400":{
+            "description": "Invalid ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/resendVerificationEmail/{uniqueString}":{
+      "get":{
+        "tags": [
+          "Authentication"
+        ],
+        "summary":"Resend Verification Email",
+        "description":"Resend Verification Email",
+        "parameters":[
+          {
+            "name": "uniqueString",
+            "in": "path",
+            "description": "Unique string of existing user to resendverification email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "400":{
+            "description": "Invalid ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
       "description": "Operations about user"      
     }
   ],
@@ -136,6 +220,57 @@
               "type": "string"
             },
             "required": "true"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description":"Page you want to See",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offlimit",
+            "description":"Number of Results in a page",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "firstName",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gender",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -158,7 +293,8 @@
                 }
               }
             }
-          },
+          } 
+        },
           "400": {
             "description": "User Not Found",
             "content": {
@@ -314,6 +450,7 @@
           {
             "in": "header",
             "name": "x-access-token",
+            "description": "Access token of user whose image to be uploaded",
             "description": "Access token of user to be updated",
             "required": true,
             "schema": {
@@ -327,11 +464,13 @@
               "schema": {
                 "type":"object",
                 "properties": {
+                  "type": {
                   "imageType": {
                     "type": "string",
                     "enum":["profile","gallery"],
                     "description": "picture to be used as"
                   },
+                  "image": {
                   "file": {
                     "type": "string",
                     "description": "file to upload",
@@ -382,6 +521,10 @@
                 "type":"object",
                 "properties": {
                   "publicId": {
+                    "type":"string",
+                    "description": "Id of Image to be updated"
+                  },
+                  "image": {
                     "$ref":"#/components/schemas/UserImages",
                     "description": "Id of Image to be updated"
                   },
@@ -418,6 +561,7 @@
           {
             "in": "header",
             "name": "x-access-token",
+            "description": "Access token of user whose image to be deleted",
             "description": "Access token of user to be updated",
             "required": true,
             "schema": {
@@ -494,6 +638,226 @@
           }
         }
       }
+    },
+    "/user/create/friendrequest":{
+      "post": {
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Sends Friend Request",
+        "operationId": "createFriendRequest",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user who want to send request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of user to be made friend",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "id":{
+                    "type":"string",
+                    "example":"9af37349-2573-4f7d-83d4-55745b866c08"
+                  }
+                }              
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Friend Request Sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendRequests"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/update/friendrequest":{
+      "put":{
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Update Friend Request Status",
+        "operationId": "updateFriendRequestStatus",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user who want to Accept/Reject/Block Request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of user whose request to be Accepted/Rejected/Blocked and Request Status ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "id":{
+                    "type":"string",
+                    "description":"senderId",
+                    "example":"75a43564-e5c3-499c-8858-830342d1ed47"
+                  },
+                  "status":{
+                    "type":"integer",
+                    "format": "int64",
+                    "description":"Status states:\n  1 : `pending`\n  2 : `Accepted`\n  3 : `Rejected`\n  4 : `blocked`\n",               
+                    "minimum": 2,
+                    "maximum": 4,
+                    "default": 2                    
+                  }
+                }              
+              }
+            }
+          }
+        },
+        "responses":{
+          "200": {
+            "description": "Friend Request Status Altered",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "404": {
+            "description": "Error while updating Friend Request Status ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/delete/friendrequest":{
+      "delete":{
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Delete Friend Request Status",
+        "operationId": "deleteFriendRequestStatus",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description": "Access token of user who want to delete Request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description":"Id of user whose request to be Deleted ",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties":{
+                  "id":{
+                    "type":"string",
+                    "description":"senderId",
+                    "example":"75a43564-e5c3-499c-8858-830342d1ed47"
+                  }                
+                }              
+              }
+            }
+          }
+        },
+        "responses":{
+          "200": {
+            "description": "Friend Request Deleted",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "404": {
+            "description": "Error while Deleting Friend Request Status ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/list/friendrequest":{
+      "get":{
+        "tags": [
+          "Friend Request"
+        ],
+        "summary": "Get FriendRequest list with Given Status",
+        "operationId": "getFriendList",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-access-token",
+            "description":"Access token of user to see FriendRequestList",
+            "schema": {
+              "type": "string"
+            },
+            "required": "true"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description":"Status of Friend Request",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ], 
+        "requestBody": {
+          "description":" ",
+          "content": {
+            
+          }
+        },  
+        "responses":{
+          "200": {
+            "description": "Success",
+            "schema": {
+              "content":{
+
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid ",
+            "schema": {
+              "content":{
+
+              }
+            }
+          }
+        }
+      }
+    }    
+  }, 
     }
   },
   "components": {
@@ -545,6 +909,7 @@
             "type": "string",
             "format": "date"
           },
+          "isVerified": {
           "isVerfified": {
             "type": "boolean",
             "default": "false"
