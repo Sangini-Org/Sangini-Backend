@@ -50,6 +50,8 @@ app.get("/", (req, res) => {
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/spotify.routes")(app);
+require("./app/routes/staticData.routes")(app);
+
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 console.log(nconf.get('path'));
