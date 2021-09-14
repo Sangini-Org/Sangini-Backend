@@ -103,13 +103,17 @@ exports.spotifyToken = (req, res) => {
           let sanginiPlaylistId = "";
           const flag =
             body.items.find((item) => item.name === "sangini") || null;
+            console.log("line 106", flag);
           if (!flag) {
+            console.log("line 87");
             request.post(
               createplaylistOptions,
               function (error, response, body) {
                 sanginiPlaylistId = body.id;
+                console.log("line 112", body);
               }
             );
+            console.log("line 87", sanginiPlaylistId);
           } else {
             sanginiPlaylistId = flag.id;
           }
@@ -141,6 +145,8 @@ exports.spotifyToken = (req, res) => {
 
 //for sync spotify playlist
 exports.spotifyPlaylistSync = async (req, res) => {
+  const { isSanginiPlaylist } = req.query;
+  console.log("line 131", isSanginiPlaylist);
   try {
     const user = await User.findOne({
       where: {
@@ -169,14 +175,18 @@ exports.spotifyPlaylistSync = async (req, res) => {
       if (!error && response.statusCode === 200) {
         access_token = body.access_token;
         const options = {
-          url: `https://api.spotify.com/v1/playlists/${user.dataValues.spotifyPlaylistId}/tracks`,
+          url: isSanginiPlaylist === 1 ? `https://api.spotify.com/v1/playlists/${user.dataValues.spotifyPlaylistId}/tracks` : 'https://api.spotify.com/v1/me/top/tracks',
           headers: { Authorization: "Bearer " + access_token },
           json: true,
         };
 
+        console.log("line 155", options);
+
         request.get(options, async function (error, response, body) {
           let tracks = [];
           let artists = new Set();
+          console.log("line 150", body.items);
+          // write logic to add the top tracks to the playlist
           for (let item of body.items) {
             for (let artist of item.track.artists) {
               console.log(artist.name);
