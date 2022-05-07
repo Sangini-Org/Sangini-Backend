@@ -47,6 +47,9 @@ module.exports = (sequelize, Sequelize) => {
     uniqueString: {
       type: DataTypes.STRING
     },
+    forgetPasswordToken: {
+      type: Sequelize.STRING,
+    },
     spotifyRefreshToken: {
       type: Sequelize.STRING,
     },

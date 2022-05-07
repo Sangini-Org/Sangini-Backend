@@ -21,4 +21,6 @@ module.exports = function (app) {
   app.post("/api/auth/signin", controller.signin);
   app.get("/api/auth/verify/:uniqueString", controller.verifyUserEmail);
   app.get("/api/auth/resendVerificationEmail/:uniqueString", controller.resendVerificationEmail);
+  app.patch("/api/auth/forgotPassword", controller.forgotPassword);
+  app.patch("/api/auth/resetPassword/:token", controller.resetPassword);
 };
